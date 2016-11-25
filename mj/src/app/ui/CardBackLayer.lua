@@ -1,4 +1,4 @@
-local Card = require("app.scenes.mj.modules.Card")
+local Card = require("app.modules.Card")
 local CardList = import(".CardList")
 local CardBackLayer = class("CardBackLayer", function() return display.newLayer() end)
 

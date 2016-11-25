@@ -8,9 +8,9 @@ local kType = {
 }
 
 local kBackSprite = {
-	[kType.dark2] = "mj/titles/dark_2.png",
-	[kType.dark1] = "mj/titles/dark_1.png",
-	[kType.out1] = "mj/titles/out_1.png"
+	[kType.dark2] = "titles/dark_2.png",
+	[kType.dark1] = "titles/dark_1.png",
+	[kType.out1] = "titles/out_1.png"
 }
 
 function MakingTile:ctor(type)
@@ -32,7 +32,7 @@ function MakingTile:changeType(type)
 end
 
 function MakingTile:changeId(id)
-	self._tile:setTexture(string.format("mj/titles/%d.png", id))
+	self._tile:setTexture(string.format("titles/%d.png", id))
 end
 
 return MakingTile

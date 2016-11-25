@@ -1,5 +1,5 @@
 local FightingStage = import(".FightingStage")
-local CardBackLayer = require("app.scenes.mj.ui.CardBackLayer")
+local CardBackLayer = require("app.ui.CardBackLayer")
 local GameControl = class("GameControl", function() return display.newLayer() end)
 
 function GameControl:ctor()
@@ -32,12 +32,12 @@ end
 
 function GameControl:_setupUi()
 	local base_pos = cc.p(50, 200)
-    cc.ui.UIPushButton.new({normal = "2.png"})
-    :addTo(self, 1000)
-    :pos(50, 50)
-    :onButtonClicked(function(event) 
-        self._cardBackLayer:upMineCard(1)
-        end)
+    -- cc.ui.UIPushButton.new({normal = "2.png"})
+    -- :addTo(self, 1000)
+    -- :pos(50, 50)
+    -- :onButtonClicked(function(event) 
+    --     self._cardBackLayer:upMineCard(1)
+    --     end)
 
 	self:gameStar()
 end

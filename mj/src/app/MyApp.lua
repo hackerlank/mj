@@ -2,9 +2,10 @@
 require("config")
 require("cocos.init")
 require("framework.init")
-require("app.scenes.mj.CONST")
-require("app.scenes.mj.ConstFunc")
-require("app.scenes.mj.define.DefineConst")
+require("app.getVec")
+require("app.CONST")
+require("app.ConstFunc")
+require("app.define.DefineConst")
 scheduler = require(cc.PACKAGE_NAME .. ".scheduler")
 
 
