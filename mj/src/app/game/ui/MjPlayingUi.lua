@@ -23,6 +23,7 @@ function MjPlayingUi:ctor()
 	--ui
 	self._allHandCards = {}
 	self._allSurplusCards = {{},{},{},{}}  --所有余牌{1,2,3,4}每个位置17叠
+	self._beganSurplusPam = {}
 	--object
 	self._dealCardsUi = nil
 	self._fightingState = nil
@@ -60,48 +61,8 @@ function MjPlayingUi:_ready()
 		self._allHandCards[seat] = HandCardsUi.new(self)
 	end
 
-	--self._dealCardsUi = DealCardsUi.new(self)
+	self._dealCardsUi = DealCardsUi.new(self)
 	--self._fightingState = FightingStage.new(self)
-end
-
---初始化所有的余牌
-function MjPlayingUi:_initAllSurplusCards()
-	-- local cardArray = MjDataControl:getInstance():getMjArray()
-	-- dump(cardArray)
-	-- local pos1 = cc.p(200, 100)
-	-- local pos2 = cc.p(display.width - 200, display.height-100)
-	-- local pos3 = cc.p(200, display.height - 100)
-	-- local pos4 = cc.p(200, display.height - 100)
-	-- for id,card in pairs(cardArray) do
-	-- 	if id <= 26 or (id > 54 and id <= 80) then
-	-- 		local md = math.ceil(id / 26)
-	-- 		local pos = md == 1 and pos1 or pos3
-	-- 		local ar = md == 1 and 1 or 3
-	-- 		table.insert(self._allSurplusCards[ar], #self._allSurplusCards[ar]+1, card)
-	-- 		card:setSpriteFrame(mjCardBsx)
-	-- 		local y = pos.y
-	-- 		if id % 2 == 0 then
-	-- 			y = y+15
-	-- 		else
-	-- 			pos.x = pos.x + mjCardBsxW
-	-- 		end
-	-- 		card:pos(pos.x, y)
-	-- 	elseif id <= 54 or (id > 80 and id <= 108) then
-	-- 		local md = math.ceil(id / 54)
-	-- 		local ar = md == 1 and 2 or 4
-	-- 		local pos = md == 1 and pos2 or pos4
-	-- 		table.insert(self._allSurplusCards[ar], #self._allSurplusCards[ar]+1, card)
-	-- 		card:setSpriteFrame(mjCardBh)
-	-- 		local x = pos.x
-	-- 		if id % 2 == 0 then
-	-- 			pos.y = pos.y + 8
-	-- 		else
-	-- 			pos.y = pos.y - mjCardBhH
-	-- 		end
-	-- 		card:pos(x, pos.y)
-	-- 	end
-	-- 	card:addTo(self)
-	-- end
 end
 
 --获得一个活动玩家（摸牌、出牌）
@@ -121,6 +82,14 @@ end
 
 function MjPlayingUi:getGData()
 	return self._gData
+end
+
+function MjPlayingUi:setBeganSurplusPam(seat, x, dir)
+	self._beganSurplusPam = {seat = seat, x = x, dir = dir}
+end
+
+function MjPlayingUi:getBeganSurplusPam()
+	return self._beganSurplusPam
 end
 
 return MjPlayingUi

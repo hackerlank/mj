@@ -10,8 +10,10 @@ function DealCardsUi:ctor(parent)
 end
 
 function DealCardsUi:_setupUi()
+	--todo:这里要庄家选牌，从哪一方开始{seat, x}
+	self._parent:setBeganSurplusPam(1, 4, true)
 	for _,seat in pairs(self._seats) do
-		local cards = MjDataControl:getInstance():getCardMjArray(13)
+		local cards = self._parent:getMjArray(13)
 		self._parent:getHandCardsBySeat(seat):addHandCards(seat, cards)
 	end
 end
