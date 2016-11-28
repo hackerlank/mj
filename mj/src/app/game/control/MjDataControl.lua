@@ -23,39 +23,41 @@ end
 
 function MjDataControl:randMjArray()
 	local array = clone(mjArray)
-	dump(array)
-	local tmpArr = {}
+	local cards = {}
 	local num = #mjArray
 	while num > 1 do
 		local index = math.random(1, num)
 		--移除随机出来的这个
-		table.insert(tmpArr, #tmpArr+1, array[index])
+		local dark_card = DarkCard.new()
+		dark_card:changeId(val)
+		table.insert(cards,#cards+1, dark_card)
+
+		--table.insert(tmpArr, #tmpArr+1, array[index])
 		table.remove(array, index)
 		num = num - 1
 	end
-	dump(tmpArr)
 	--打乱结束则不会再改变牌顺序
-	self.m_mj_array = tmpArr
+	self.m_mj_array = cards
 end
 
 --摸牌、取牌（這裏衹有暗牌）
-function MjDataControl:getCardMjArray(num)
-	--从头开始取
-	local cards = {}
-	local tmpB = {}
-	for id,val in pairs(self.m_mj_array) do
-		if id <= num then
-			--todo:從這裏直接生成牌
-			local dark_card = DarkCard.new()
-			dark_card:changeId(val)
-			table.insert(cards,#cards+1, dark_card)
-		else
-			table.insert(tmpB,#tmpB+1, val)
-		end
-	end
-	self.m_mj_array = tmpB  --（ids）
-	return cards
-end
+-- function MjDataControl:getCardMjArray(num)
+-- 	--从头开始取
+-- 	local cards = {}
+-- 	local tmpB = {}
+-- 	for id,val in pairs(self.m_mj_array) do
+-- 		if id <= num then
+-- 			--todo:從這裏直接生成牌
+-- 			local dark_card = DarkCard.new()
+-- 			dark_card:changeId(val)
+-- 			table.insert(cards,#cards+1, dark_card)
+-- 		else
+-- 			table.insert(tmpB,#tmpB+1, val)
+-- 		end
+-- 	end
+-- 	self.m_mj_array = tmpB  --（ids）
+-- 	return cards
+-- end
 
 --每当牌数发生变化时
 function MjDataControl:dispatcherCardNumChange()

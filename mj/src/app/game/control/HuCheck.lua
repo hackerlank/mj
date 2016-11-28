@@ -1,20 +1,10 @@
 local HuCheck = class("HuCheck")
 
-function HuCheck:ctor(card_list)
-	self.m_card_list = card_list
-
-	self._isHu = false  --是否可胡
-	if self:_checkHu() then
-		print("----------胡啦----------")
-	end
+function HuCheck:ctor(hand_cards)
+	self._handCards = hand_cards
 end
 
-function HuCheck:_checkHu()
-	self:_checkCustom()
-	return self._isHu
-end
-
-function HuCheck:_checkCustom()
+function HuCheck:_checkCustom(cards)
 	local dark_list = self.m_card_list:getDarkList()
 	if (#dark_list-2)%3 ~= 0 then
 		--不符合3 3 3 3 2牌数规则 不和(小相公)
@@ -94,13 +84,6 @@ function HuCheck:AnalyZe(dark_list_clone, jIndex)
 			return
 		end
 	end
-end
-
-
-function HuCheck:_checkD4X()
-	--大四喜：东西南北四杠
-	--暗牌为2 其余为四杠
-	--暗牌为14 其余为四刻子
 end
 
 return HuCheck

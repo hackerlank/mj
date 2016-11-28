@@ -1,12 +1,13 @@
+--todo：出牌阶段轮询
 local FightingStage = class("FightingStage")
 
-function FightingStage:ctor(params)
-	self._baseTime = params.base_time
-
+function FightingStage:ctor(parent)
+	self._parent = parent
+	self._gData = self._parent:getGData()
 	--self
 	self._seatIndex = 0
-	self._palyerSeats = params.seats
-	self._playerNum = #params.seats
+	self._palyerSeats = self._gData.seats
+	self._playerNum = #self._gData.seats
 end
 
 function FightingStage:getActivitySeat()
@@ -26,7 +27,5 @@ function FightingStage:updateSeatIndex(seat_pos)
 		end
 	end
 end
-
-
 
 return FightingStage

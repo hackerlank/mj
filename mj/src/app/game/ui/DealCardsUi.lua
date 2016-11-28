@@ -1,4 +1,5 @@
 --todo:還是在主界面上進行，只是獨立出來
+--todo:发牌
 local DealCardsUi = class("DealCardsUi")
 
 function DealCardsUi:ctor(parent)
@@ -11,13 +12,7 @@ end
 function DealCardsUi:_setupUi()
 	for _,seat in pairs(self._seats) do
 		local cards = MjDataControl:getInstance():getCardMjArray(13)
-		for _,card in pairs(cards) do
-			if seat ~= 1 then
-				card:setSpriteFrame(mjDarkBack[seat])
-			end
-			card:addTo(self._parent)
-		end
-		self._parent:getHandCardByPos():init(seat, cards)
+		self._parent:getHandCardsBySeat(seat):addHandCards(seat, cards)
 	end
 end
 
