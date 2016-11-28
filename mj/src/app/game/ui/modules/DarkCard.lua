@@ -9,4 +9,9 @@ function DarkCard:changeId(id)
 	self:setSpriteFrame(string.format("x_%d.png", id))
 end
 
+--
+function DarkCard:recoverCard()
+	self:setSpriteFrame(string.format("x_%d.png", self._id))
+end
+
 return DarkCard

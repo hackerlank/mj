@@ -22,11 +22,10 @@ function MjPlayingUi:ctor()
 	self._seats = self._gData.seats
 	--ui
 	self._allHandCards = {}
-	self._allSurplusCards = {{},{},{},{}}  --所有余牌{1,2,3,4}每个位置17叠
-	self._beganSurplusPam = {}
 	--object
 	self._dealCardsUi = nil
 	self._fightingState = nil
+	self._surplusPos = nil
 
 	self:_setupUi()
 	self:_connectObserver()
@@ -55,7 +54,7 @@ end
 
 function MjPlayingUi:_ready()
 	MjDataControl:getInstance():dataStart()
-	local surplus_obj = SurplusPosition.new(self)
+	self._surplusPos = SurplusPosition.new(self)
 
 	for _,seat in pairs(self._seats) do
 		self._allHandCards[seat] = HandCardsUi.new(self)
@@ -84,12 +83,8 @@ function MjPlayingUi:getGData()
 	return self._gData
 end
 
-function MjPlayingUi:setBeganSurplusPam(seat, x, dir)
-	self._beganSurplusPam = {seat = seat, x = x, dir = dir}
-end
-
-function MjPlayingUi:getBeganSurplusPam()
-	return self._beganSurplusPam
+function MjPlayingUi:getObjSurplusPos()
+	return self._surplusPos
 end
 
 return MjPlayingUi

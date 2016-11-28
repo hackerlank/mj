@@ -37,8 +37,9 @@ function HandCardsUi:addHandCards(seat, cards)
 	for _,card in pairs(cards) do
 		if seat ~= 1 then
 			card:setSpriteFrame(mjDarkBack[seat])
+		else
+			card:recoverCard()
 		end
-		card:addTo(self._parent)
 		table.insert(self._darkCards, #self._darkCards+1, card)
 	end
 
