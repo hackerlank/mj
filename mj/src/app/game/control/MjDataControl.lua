@@ -25,11 +25,11 @@ function MjDataControl:randMjArray()
 	local array = clone(mjArray)
 	local cards = {}
 	local num = #mjArray
-	while num > 1 do
+	while num >= 1 do
 		local index = math.random(1, num)
 		--移除随机出来的这个
 		local dark_card = DarkCard.new()
-		dark_card:changeId(val)
+		dark_card:changeId(array[index])
 		table.insert(cards,#cards+1, dark_card)
 
 		--table.insert(tmpArr, #tmpArr+1, array[index])

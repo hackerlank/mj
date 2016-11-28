@@ -5,7 +5,7 @@
 ]]
 --===========================================
 local HandCardByPos = import(".HandCardByPos")
-local HuCheck = import("....control.HuCheck")
+local HuCheck = require("app.game.control.HuCheck")
 local HandCardsUi = class("HandCardsUi")
 
 local kUpCardEnum = {

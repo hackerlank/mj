@@ -24,8 +24,11 @@ mjDarkBack = {
 	[4] = "bz.png"
 }
 
-mjCardBs = "bs.png"  --桌面上的余牌暗牌 V
-mjCardBh = "bh.png"  --桌面上的余牌暗牌 H
+mjCardBsx = "bsx.png"  --桌面上的余牌暗牌 V 33*47
+mjCardBsxW = 33
+
+mjCardBh = "bh.png"  --桌面上的余牌暗牌 H 40*37
+mjCardBhH = 37
 -- mjAction_G = "action_a_g.png"  --杠
 -- mjAction_H = "action_a_h.png"  --胡
 -- mjAction_P = "action_a_p.png"  --碰

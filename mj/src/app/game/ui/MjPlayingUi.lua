@@ -21,7 +21,7 @@ function MjPlayingUi:ctor()
 	self._seats = self._gData.seats
 	--ui
 	self._allHandCards = {}
-	self._allSurplusCards = {}  --所有余牌{1,2,3,4}每个位置17叠
+	self._allSurplusCards = {{},{},{},{}}  --所有余牌{1,2,3,4}每个位置17叠
 	--object
 	self._dealCardsUi = nil
 	self._fightingState = nil
@@ -53,21 +53,53 @@ end
 
 function MjPlayingUi:_ready()
 	MjDataControl:getInstance():dataStart()
+	self:_initAllSurplusCards()
 
 	for _,seat in pairs(self._seats) do
 		self._allHandCards[seat] = HandCardsUi.new(self)
 	end
 
-	self._dealCardsUi = DealCardsUi.new(self)
-	self._fightingState = FightingStage.new(self)
+	--self._dealCardsUi = DealCardsUi.new(self)
+	--self._fightingState = FightingStage.new(self)
 end
 
 --初始化所有的余牌
-function MjPlayingUi:initAllSurplusCards()
+function MjPlayingUi:_initAllSurplusCards()
 	local cardArray = MjDataControl:getInstance():getMjArray()
+	dump(cardArray)
+	local pos1 = cc.p(200, 100)
+	local pos2 = cc.p(display.width - 200, display.height-100)
+	local pos3 = cc.p(200, display.height - 100)
+	local pos4 = cc.p(200, display.height - 100)
 	for id,card in pairs(cardArray) do
-		if id <= 34 then
+		if id <= 26 or (id > 54 and id <= 80) then
+			local md = math.ceil(id / 34)
+			local pos = md == 1 and pos1 or pos3
+			local ar = md == 1 and 1 or 3
+			table.insert(self._allSurplusCards[ar], #self._allSurplusCards[ar]+1, card)
+			card:setSpriteFrame(mjCardBsx)
+			local y = pos.y
+			if id % 2 == 0 then
+				y = y+15
+			else
+				pos.x = pos.x + mjCardBsxW
+			end
+			card:pos(pos.x, y)
+		elseif id <= 54 or (id > 80 and id <= 108) then
+			local md = math.ceil(id / 68)
+			local ar = md == 1 and 2 or 4
+			local pos = md == 1 and pos2 or pos4
+			table.insert(self._allSurplusCards[ar], #self._allSurplusCards[ar]+1, card)
+			card:setSpriteFrame(mjCardBh)
+			local x = pos.x
+			if id % 2 == 0 then
+				pos.y = pos.y + 8
+			else
+				pos.y = pos.y - mjCardBhH
+			end
+			card:pos(x, pos.y)
 		end
+		card:addTo(self)
 	end
 end
 
