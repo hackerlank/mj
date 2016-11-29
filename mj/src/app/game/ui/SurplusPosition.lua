@@ -14,16 +14,16 @@ function SurplusPosition:setupUi()
 	--mjCardBsxW
 	local Hdis = 10
 	local Wdis = 15
-	local disW = 250
-	local disH = 200
+	local disW = 280
+	local disH = 230
 	local cardArray = MjDataControl:getInstance():getMjArray()
 	if #cardArray == 108 then
 		vecs = {26,28,26,28}
 	elseif #cardArray == 136 then
 		vecs = {34,34,34,34}
 	end
-	local pos1 = cc.p(display.cx-(vecs[1]+2)*mjCardBsxW/4, display.cy-disH)
-	local pos2 = cc.p(display.cx+disW, display.cy-(vecs[2]-5)*mjCardBhH/4)
+	local pos1 = cc.p(display.cx-(vecs[1]+2)*mjCardBsxW/4, display.cy-disH + mjCardBhH*0.6)
+	local pos2 = cc.p(display.cx+disW, display.cy-(vecs[2]-5)*mjCardBhH/4)             
 	local pos3 = cc.p(display.cx+(vecs[3]+2)*mjCardBsxW/4, display.cy+disH)
 	local pos4 = cc.p(display.cx-disW, display.cy+(vecs[4]-5)*mjCardBhH/4)
 	local posAr = {pos1, pos2, pos3, pos4}
@@ -78,5 +78,7 @@ function SurplusPosition:setupUi()
 		end
 	end		
 end
+
+
 
 return SurplusPosition

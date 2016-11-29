@@ -34,7 +34,6 @@ end
 
 function UIChangeObserver:dispatcherUIChangeObserver(name, data)
 	if self.m_change_observers[name] then
-		dump(self.m_change_observers[name])
 	 	for _,observer in pairs(self.m_change_observers[name]) do
 	 		observer(data)
 	 	end

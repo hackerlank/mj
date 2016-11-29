@@ -77,34 +77,42 @@ end
 
 --上牌(他人出牌时，上牌检测; 自己摸牌时上牌检测)
 function HandCardsUi:upCard(type, card)
+	local other_ret = false
 	if type == kUpCardEnum.other then  --2
-		self:_otherPlayCard(card)
+		other_ret = self:_otherPlayCard(card)
+		return other_ret
 	elseif type == kUpCardEnum.mine then  --1
 		local cards= MjDataControl:getInstance():getCardMjArray(1)
 		self:_mineFeelCard(cards[1])
 	end
 end
 
-function HandCardsUi:_playSuccess(card)
-	card:pos(display.cx, display.cy)
-	--table.remove()
+function HandCardsUi:playSuccess(card)
+	self._handCardByPos:playingCardParams(self._seat, card)
+	table.remove(self._darkCards, card:getSortId())
+	self:_darkCardChange()
 end
 
 function HandCardsUi:_otherPlayCard(card)
 	--检测碰、杠、胡
+	table.insert(self._darkCards, #self._darkCards+1, card)
 	local isPeng = self:_checkPeng(card)
 	local isGang = self:_checkGang(card)
-	local isHu = self._huCheck:checkHu(card)
-
+	local isHu = self._huCheck:checkHu()
+	if not isPeng and not isGang and not isHu then
+		table.remove(self._darkCards, #self._darkCards)
+		return true
+	end
 end
 
 --自己上牌
 function HandCardsUi:_mineFeelCard(card)
 	--检测 暗杠、自摸
+	card:setSeat(self._seat)
 	self._handCardByPos:setUpCardParams(self._seat, card)
 	table.insert(self._darkCards, #self._darkCards+1, card)
 	local isDarkG = self:_checkDarkGang()
-	local isHu = self._huCheck:checkHu(card)
+	local isHu = self._huCheck:checkHu()
 end
 
 ---&***************Check**********************&---

@@ -9,13 +9,18 @@ function FightingStage:ctor(parent)
 	self._palyerSeats = self._gData.seats
 	self._playerNum = #self._gData.seats
 
-	UIChangeObserver:getInstance():addObserver(ListenerIds.kPlayCard, handler(self, self._playCardSuccess))
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kPlayCard, self, handler(self, self._playCardSuccess))
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kNextSeat, self, handler(self, self._getNextSeatActive))
 end
 
-function FightingStage:began()
+function FightingStage:getActiveSeatUp()
 	local seat = self:_getActivitySeat()
 	print("----------------------当前活动玩家", seat)
 	self._parent:getHandCardsBySeat(seat):upCard(1)
+end
+
+function FightingStage:began()
+	self:getActiveSeatUp()
 end
 
 function FightingStage:_getActivitySeat()
@@ -34,6 +39,27 @@ function FightingStage:updateSeatIndex(seat_pos)
 			break
 		end
 	end
+end
+
+function FightingStage:_playCardSuccess(data)
+	self._parent:getHandCardsBySeat(data.seat):playSuccess(data.card)
+	local ret = false
+	for _,_seat in pairs(self._parent:getSeats()) do
+		if _seat ~= data.seat then
+			--其他人上牌 檢測
+			if self._parent:getHandCardsBySeat(_seat):upCard(2, data.card) then
+				ret = true
+			end
+		end
+	end
+	print("_-----------------ret------------", ret)
+	if not ret then
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
+	end
+end
+
+function FightingStage:_getNextSeatActive()
+	self:getActiveSeatUp()
 end
 
 return FightingStage

@@ -5,6 +5,7 @@ function Card:ctor()
 	self._id = nil
 	self._name = nil
 	self._type = nil
+	self._sortId = 0  --在手牌中的位置
 end		
 
 function Card:changeId(id)
@@ -24,6 +25,14 @@ end
 
 function Card:getName()
 	return self._name
+end
+
+function Card:getSortId()
+	return self._sortId
+end
+
+function Card:setSortId(id)
+	self._sortId = id
 end
 
 return Card

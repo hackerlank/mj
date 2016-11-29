@@ -83,4 +83,8 @@ function MjPlayingUi:getObjSurplusPos()
 	return self._surplusPos
 end
 
+function MjPlayingUi:getSeats()
+	return self._seats
+end
+
 return MjPlayingUi
