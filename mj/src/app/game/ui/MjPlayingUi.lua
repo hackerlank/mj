@@ -30,6 +30,7 @@ function MjPlayingUi:ctor()
 	self:_setupUi()
 	self:_connectObserver()
 	self:_ready()
+	self:_fighting()
 end
 
 function MjPlayingUi:_setupUi()
@@ -61,17 +62,12 @@ function MjPlayingUi:_ready()
 	end
 
 	self._dealCardsUi = DealCardsUi.new(self)
-	--self._fightingState = FightingStage.new(self)
+	self._fightingState = FightingStage.new(self)
 end
 
---获得一个活动玩家（摸牌、出牌）
-function MjPlayingUi:_getActivitySeat()
-	local seat = self._fightingState:getActivitySeat()
-	self._allHandCards[seat]:upCard(card, 1)
-end
 
 function MjPlayingUi:_fighting()
-
+	self._fightingState:began()
 end
 
 --get

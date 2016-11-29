@@ -4,23 +4,27 @@ function HuCheck:ctor(hand_cards)
 	self._handCards = hand_cards
 end
 
+function HuCheck:checkHu()
+	self:_checkCustom()
+end
+
 function HuCheck:_checkCustom(cards)
-	local dark_list = self.m_card_list:getDarkList()
+	local dark_list = self._handCards:getDarkList()
 	if (#dark_list-2)%3 ~= 0 then
 		--不符合3 3 3 3 2牌数规则 不和(小相公)
 		print("error: file(HuCheck) 小相公")
 		self._isHu = false
 	end
 	--必须有一对将牌 否则不和
-	if #self.m_card_list:getJiang() == 0 then
+	if #self._handCards:getJiang() == 0 then
 		self._isHu = false
 	end
 
-	local jiangs = self.m_card_list:getJiang()
+	local jiangs = self._handCards:getJiang()
 	--刻子也放进来
-	for _,val in pairs(self.m_card_list:getKezi()) do
-		table.insert(jiangs, #jiangs + 1, {val[1], val[2]})
-	end
+	-- for _,val in pairs(self._handCards:getKezi()) do
+	-- 	table.insert(jiangs, #jiangs + 1, {val[1], val[2]})
+	-- end
 	
 	for index,jiang in pairs(jiangs) do
 		local dark_list_clone = clone(dark_list)

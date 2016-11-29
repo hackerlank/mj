@@ -6,8 +6,10 @@ MjDataControl.instance = nil
 --血流成河 108 牌
 local sz_gets = {
 		[1] = {
-			{began = 3, ends = 108},
-			{began = 1, ends = 2}
+			began = 3, 
+			isShun = false
+			--={began = 3, ends = 108},
+			--{began = 1, ends = 2}
 		},
 		[2] = {
 			{began = 50, ends = 1},
@@ -43,10 +45,17 @@ function MjDataControl:ctor()
 
 	self.m_mj_array = nil  --当局游戏的牌组(id)
 	self.m_sz_number = 0  --一開莊丟到的數字
+	self.m_current_id = 0
+	self.m_total_ids = 108
+	self.m_isShun = true
 end
 
 function MjDataControl:dataStart()
 	self.m_mj_array = nil  --当局游戏的牌组(id)
+	self.m_sz_number = 0  --一開莊丟到的數字
+	self.m_current_id = 0
+	self.m_total_ids = 108
+	self.m_isShun = true
 	self:randMjArray()
 end
 
@@ -70,40 +79,33 @@ end
 
 function MjDataControl:setBeganSzNumber(number)
 	self.m_sz_number = number  --(1 - 6)
+	local gets = sz_gets[self.m_sz_number]
+	self.m_current_id = gets.began
+	self.m_isShun = gets.isShun
 end
-
-local iii = 3
 
 --摸牌、取牌（這裏衹有暗牌）
 function MjDataControl:getCardMjArray(num)
 	--从头开始取
-	local sz_gets_arr = sz_gets[self.m_sz_number]
 	local currentArr = {}
 	--衹是重新排一下獲取序號
-	-- for _,val in pairs(sz_gets_arr) do
-	-- 	for i = val.began, val.ends do
-	-- 		table.insert(currentArr, #currentArr+1, self.m_mj_array[i])
-	-- 	end
-	-- end
-	--dump(currentArr)
-	--self.m_mj_array = currentArr
-	--dump(self.m_mj_array)
 
 	local cardsArr = {}
-	-- local tmpB = {}
-	-- for id,card in pairs(self.m_mj_array) do
-	-- 	if id <= num then
-	-- 		print("--------------id---------", id)
-	-- 		table.insert(cardsArr,#cardsArr+1, card)
-	-- 	else
-	-- 		table.insert(tmpB,#tmpB+1, card)
-	-- 	end
-	-- end
-	-- self.m_mj_array = tmpB  --（ids）
-	for i = iii, iii + num-1 do
-		table.insert(cardsArr,#cardsArr+1, self.m_mj_array[i])
+	if not self.m_isShun then
+		while num > 0 do
+			num = num - 1
+			table.insert(cardsArr,#cardsArr+1, self.m_mj_array[self.m_current_id])
+			self.m_current_id = self.m_current_id + 1
+			if self.m_current_id > self.m_total_ids then
+				self.m_current_id = 1
+			end
+		end
+	else
+		for i = self.m_current_id, self.m_current_id - num + 1 do
+			table.insert(cardsArr,#cardsArr+1, self.m_mj_array[i])
+		end
+		self.m_current_id = self.m_current_id - num
 	end
-	iii = iii + num
 	return cardsArr
 end
 

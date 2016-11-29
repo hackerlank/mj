@@ -35,11 +35,6 @@ end
 function HandCardsUi:addHandCards(seat, cards)
 	self._seat = seat
 	for _,card in pairs(cards) do
-		if seat ~= 1 then
-			card:setSpriteFrame(mjDarkBack[seat])
-		else
-			card:recoverCard()
-		end
 		table.insert(self._darkCards, #self._darkCards+1, card)
 	end
 
@@ -48,7 +43,7 @@ end
 
 --===================================================
 function HandCardsUi:_darkCardChange()
-	self._handCardByPos:update(self._seat, self._darkCards)
+	self._handCardByPos:sortDarkList(self._seat, self._darkCards)
 	self:_setPramsByKey()
 end
 -----------对暗牌的处理--------------
@@ -82,9 +77,9 @@ end
 
 --上牌(他人出牌时，上牌检测; 自己摸牌时上牌检测)
 function HandCardsUi:upCard(type, card)
-	if type == kUpCardEnum.other then
+	if type == kUpCardEnum.other then  --2
 		self:_otherPlayCard(card)
-	elseif type == kUpCardEnum.mine then
+	elseif type == kUpCardEnum.mine then  --1
 		local cards= MjDataControl:getInstance():getCardMjArray(1)
 		self:_mineFeelCard(cards[1])
 	end
@@ -103,8 +98,10 @@ function HandCardsUi:_otherPlayCard(card)
 
 end
 
+--自己上牌
 function HandCardsUi:_mineFeelCard(card)
 	--检测 暗杠、自摸
+	self._handCardByPos:setUpCardParams(self._seat, card)
 	table.insert(self._darkCards, #self._darkCards+1, card)
 	local isDarkG = self:_checkDarkGang()
 	local isHu = self._huCheck:checkHu(card)
@@ -138,6 +135,19 @@ end
 --
 function HandCardsUi:_upCardAction()
 	--card:setRota
+end
+
+--get
+function HandCardsUi:getDarkList()
+	return self._darkCards
+end
+
+function HandCardsUi:getJiang()
+	return self._jiang
+end
+
+function HandCardsUi:getKezi()
+	return self._kezi
 end
 
 return HandCardsUi
