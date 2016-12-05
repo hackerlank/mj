@@ -1,12 +1,6 @@
 --所有牌的基類
 local Card = class("Card", function() return display.newSprite() end)
 
---的手牌
-local kDarkKey = {
-	[1] = "x_%d.png",
-	[2] = 
-}
-
 function Card:ctor()
 	self._id = nil
 	self._name = nil
@@ -14,10 +8,10 @@ function Card:ctor()
 	self._cardType = nil --牌形式
 	--附加属性
 	self._sortId = 0  --在手牌中的位置
-	self._seat = 0
+	self._seat = 1
 	self._isMine = false
 
-	self:setCardType(mjDCardType.mj_init)  --一开始所有的牌都是默认牌
+	--self:setCardType(mjDCardType.mj_init)  --一开始所有的牌都是默认牌
 end		
 
 function Card:changeId(id)
@@ -44,6 +38,7 @@ end
 
 --初始化牌形式
 function Card:_changeToInit()
+	print("都是執行的這裏", mjInitCardKey[self._seat])
 	self:setSpriteFrame(mjInitCardKey[self._seat])
 end
 

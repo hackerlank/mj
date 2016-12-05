@@ -1,5 +1,5 @@
 --todo:手牌數據控制
-local DarkCard = import("..ui.modules.DarkCard")
+local Card = import("..ui.modules.Card")
 local MjDataControl = class("MjDataControl")
 MjDataControl.instance = nil
 
@@ -56,17 +56,17 @@ function MjDataControl:dataStart()
 	self.m_current_id = 0
 	self.m_total_ids = 108
 	self.m_isShun = true
-	self:randMjArray()
+	self:_randMjArray()
 end
 
-function MjDataControl:randMjArray()
+function MjDataControl:_randMjArray()
 	local array = clone(mjArray)
 	local cards = {}
 	local num = #mjArray
 	while num >= 1 do
 		local index = math.random(1, num)
 		--移除随机出来的这个
-		local dark_card = DarkCard.new()
+		local dark_card = Card.new()
 		dark_card:changeId(array[index])
 		table.insert(cards,#cards+1, dark_card)
 		table.remove(array, index)
@@ -76,7 +76,7 @@ function MjDataControl:randMjArray()
 	self.m_mj_array = cards
 end
 
-
+--确定庄家位置
 function MjDataControl:setBeganSzNumber(number)
 	self.m_sz_number = number  --(1 - 6)
 	local gets = sz_gets[self.m_sz_number]

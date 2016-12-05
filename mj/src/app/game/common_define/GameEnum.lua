@@ -21,8 +21,8 @@ mjDCardType = {
 mjDarkCardKey = {
 	[1] = "x_",
 	[2] = "by.png",
-	[3] = "bxx.png",
-	[4] = "bz,png"
+	[3] = "bx.png",
+	[4] = "bz.png"
 }
 
 --打出的牌键值

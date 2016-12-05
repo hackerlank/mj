@@ -3,9 +3,9 @@ UIChangeObserver = require("app.game.UIObservers.UIChangeObserver")
 MjDataControl = require("app.game.control.MjDataControl")
 --ui
 local HandCardsUi = import(".hand_cards_mag.HandCardsUi")
-local DealCardsUi = import(".DealCardsUi")
+local ReadyStage = import("..control.ReadyStage")
+local DealingStage = import("..control.DealingStage")
 local FightingStage = import("..control.FightingStage")
-local SurplusPosition = import(".SurplusPosition")
 local MjPlayingUi = class("MjPlayingUi", function() return display.newLayer() end)
 
 local game_params = {
@@ -21,16 +21,15 @@ function MjPlayingUi:ctor()
 	self._gData = game_params
 	self._seats = self._gData.seats
 	--ui
-	self._allHandCards = {}
+	self._HandCards = {}
 	--object
-	self._dealCardsUi = nil
+	self._readyStage = nil
+	self._dealingStage = nil
 	self._fightingState = nil
-	self._surplusPos = nil
 
 	self:_setupUi()
 	self:_connectObserver()
-	self:_ready()
-	self:_fighting()
+	self:start()
 end
 
 function MjPlayingUi:_setupUi()
@@ -43,6 +42,13 @@ function MjPlayingUi:_setupUi()
 	:addTo(self)
 	:pos(display.cx, display.cy - 55)
 
+	--todo：初始化手牌（还未有手牌数据）
+	for _,seat in pairs(self._seats) do
+		self._HandCards[seat] = HandCardsUi.new(self)
+	end
+
+	self._readyStage = ReadyStage.new(self)
+	self._dealingStage = DealingStage.new(self)
 end
 
 function MjPlayingUi:_connectObserver()
@@ -53,34 +59,18 @@ function MjPlayingUi:_unConnectObserver()
 
 end
 
-function MjPlayingUi:_ready()
-	MjDataControl:getInstance():dataStart()
-	self._surplusPos = SurplusPosition.new(self)
-
-	for _,seat in pairs(self._seats) do
-		self._allHandCards[seat] = HandCardsUi.new(self)
-	end
-
-	self._dealCardsUi = DealCardsUi.new(self)
-	self._fightingState = FightingStage.new(self)
-end
-
-
-function MjPlayingUi:_fighting()
-	self._fightingState:began()
-end
+function MjPlayingUi:start()
+	self._readyStage:began()
+	self._dealingStage:began()
+end	
 
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)
-	return self._allHandCards[seat]
+	return self._HandCards[seat]
 end
 
 function MjPlayingUi:getGData()
 	return self._gData
-end
-
-function MjPlayingUi:getObjSurplusPos()
-	return self._surplusPos
 end
 
 function MjPlayingUi:getSeats()

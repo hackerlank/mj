@@ -36,12 +36,8 @@ function HandCardByPos:update(seat, cards)
 	self._cardsPos[seat] = cards
 	for _,card in pairs(cards) do
 		local beganPos = mjDarkPositions[seat]
-		--if seat ~= 1 then
-		--	card:setSpriteFrame(mjDarkBack[seat])
-		--else
-			card:recoverCard()
-		--end
 		card:setSeat(seat)
+		card:setCardType(mjDCardType.mj_dark)
 		card:setSortId(_)
 		if seat == 1 then  --66*94
 			card:pos(beganPos.x + 66* _, beganPos.y)

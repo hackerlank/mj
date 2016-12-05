@@ -4,7 +4,7 @@
 	2.暗牌、明牌两部分
 ]]
 --===========================================
-local HandCardByPos = import(".HandCardByPos")
+local HandCardPos = import(".HandCardPos")
 local HuCheck = require("app.game.control.HuCheck")
 local HandCardsUi = class("HandCardsUi")
 
@@ -18,7 +18,6 @@ function HandCardsUi:ctor(parent)
 	self._parent = parent
 
 	self._isRobot = false
-	self._handCardByPos = HandCardByPos.new()
 	self._seat = 0  --初始化的玩家
 	self._darkCards = {}
 	self._openCards = {}
@@ -29,6 +28,7 @@ function HandCardsUi:ctor(parent)
 	self._gangzi = {}
 
 	self._huCheck = HuCheck.new(self)
+	self._handCardPos = HandCardPos.new(self)
 end
 
 --初始化：开始阶段满手牌（暗牌）(4\4\5)
@@ -43,7 +43,7 @@ end
 
 --===================================================
 function HandCardsUi:_darkCardChange()
-	self._handCardByPos:sortDarkList(self._seat, self._darkCards)
+	self._handCardPos:sortDarkCards()
 	self:_setPramsByKey()
 end
 -----------对暗牌的处理--------------
@@ -88,7 +88,7 @@ function HandCardsUi:upCard(type, card)
 end
 
 function HandCardsUi:playSuccess(card)
-	self._handCardByPos:playingCardParams(self._seat, card)
+	self._handCardPos:playingCardParams(self._seat, card)
 	table.remove(self._darkCards, card:getSortId())
 	self:_darkCardChange()
 end
@@ -109,7 +109,7 @@ end
 function HandCardsUi:_mineFeelCard(card)
 	--检测 暗杠、自摸
 	card:setSeat(self._seat)
-	self._handCardByPos:setUpCardParams(self._seat, card)
+	self._handCardPos:setUpCardParams(self._seat, card)
 	table.insert(self._darkCards, #self._darkCards+1, card)
 	local isDarkG = self:_checkDarkGang()
 	local isHu = self._huCheck:checkHu()
@@ -156,6 +156,10 @@ end
 
 function HandCardsUi:getKezi()
 	return self._kezi
+end
+
+function HandCardsUi:getSeat()
+	return self._seat
 end
 
 return HandCardsUi

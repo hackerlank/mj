@@ -1,10 +1,14 @@
+--[[
+	初始化所有的麻將放置在桌面上，所有麻将个数应该是固定的
+]]
 local SurplusPosition = class("SurplusPosition")
 
 --要求 居中展示
 --四川麻将 108张牌 
 --国际麻将 136 张
-function SurplusPosition:ctor(parent)
-	self._parent = parent
+local this = nil
+function SurplusPosition:ctor(layer)
+	this = layer
 
 	self:setupUi()
 end
@@ -53,29 +57,32 @@ function SurplusPosition:setupUi()
 		end
 		return cc.p(posAr[type].x, type % 2 ~= 0 and y or posAr[type].y)
 	end
-	
 	for id,card in pairs(cardArray) do
-
 		--標志位： card_bpos:哪一家上 card_bid: 序號
 		if id <= vecs[1] then
-			card:setSpriteFrame(mjCardBsx)
+			--card:setSpriteFrame(mjCardBsx)
+			card:setSeat(1)
 			card:setPosition(getPos(id, 1))
-			card:addTo(self._parent, Type1Index)
+			card:addTo(this, Type1Index)
 			Type1Index = Type1Index - 1
 		elseif id <= (vecs[1]+vecs[2]) then
-			card:setSpriteFrame(mjCardBh)
+			--card:setSpriteFrame(mjCardBh)
+			card:setSeat(2)
 			card:setPosition(getPos(id, 2))
-			card:addTo(self._parent, Type2Index)
+			card:addTo(this, Type2Index)
 		elseif id <= (vecs[1]+vecs[2]+vecs[3]) then
-			card:setSpriteFrame(mjCardBsx)	
+			--card:setSpriteFrame(mjCardBsx)
+			card:setSeat(3)	
 			card:setPosition(getPos(id, 3))
-			card:addTo(self._parent, Type3Index)
+			card:addTo(this, Type3Index)
 			Type3Index = Type3Index - 1
 		elseif id <= (vecs[1]+vecs[2]+vecs[3]+vecs[4]) then
-			card:setSpriteFrame(mjCardBh)
+			--card:setSpriteFrame(mjCardBh)
+			card:setSeat(4)
 			card:setPosition(getPos(id, 4))
-			card:addTo(self._parent)
+			card:addTo(this)
 		end
+		card:setCardType(mjDCardType.mj_init)
 	end		
 end
 
