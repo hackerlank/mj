@@ -38,7 +38,6 @@ end
 
 --初始化牌形式
 function Card:_changeToInit()
-	print("都是執行的這裏", mjInitCardKey[self._seat])
 	self:setSpriteFrame(mjInitCardKey[self._seat])
 end
 

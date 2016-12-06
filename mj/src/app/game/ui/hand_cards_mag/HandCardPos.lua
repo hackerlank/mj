@@ -4,7 +4,7 @@
 ]]
 local HandCardPos = class("HandCardPos")
 
-function HandCardPos:cotr(hand_card)
+function HandCardPos:ctor(hand_card)
 	self._handCard = hand_card  --手牌类
 end
 
