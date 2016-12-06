@@ -65,9 +65,18 @@ GPositions = {
 		}
 }
 
+--手牌位置
 mjDarkPositions = {
 	[1] = cc.p(50, 50),  --本家手牌的位置
 	[2] = cc.p(display.width - 50, 100),
 	[3] = cc.p(display.width - 50, display.height-50),
 	[4] = cc.p(50, display.height - 50)
+}
+
+--出牌起始位置
+mjPlayPositions = {
+	[1] = cc.p(display.cx-100, 200),
+	[2] = cc.p(display.width-200, 250),
+	[3] = cc.p(display.width-200, display.height - 200),
+	[4] = cc.p(display.cx-100, display.height - 200),
 }

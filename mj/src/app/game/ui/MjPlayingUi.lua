@@ -1,16 +1,14 @@
 import("..common_define.init")
 UIChangeObserver = require("app.game.UIObservers.UIChangeObserver")
 MjDataControl = require("app.game.control.MjDataControl")
+GDataManager = require("app.game.control.GDataManager")
 --ui
 local HandCardsUi = import(".hand_cards_mag.HandCardsUi")
+local AoperatorUi = import(".hand_cards_mag.AoperatorUi")
 local ReadyStage = import("..control.ReadyStage")
 local DealingStage = import("..control.DealingStage")
 local FightingStage = import("..control.FightingStage")
 local MjPlayingUi = class("MjPlayingUi", function() return display.newLayer() end)
-
-local game_params = {
-	seats = {1,2,3,4},  --參與的人數個數
-}
 
 local SpriteRes = {
 	background = "background/bg.jpg"
@@ -18,10 +16,11 @@ local SpriteRes = {
 
 function MjPlayingUi:ctor()
 	--data
-	self._gData = game_params
-	self._seats = self._gData.seats
+	GDataManager:getInstance():reset()
+	self._seats = GDataManager:getInstance():getSeats()
 	--ui
 	self._HandCards = {}
+	self._operatorUi = nil
 	--object
 	self._readyStage = nil
 	self._dealingStage = nil
@@ -49,14 +48,16 @@ function MjPlayingUi:_setupUi()
 
 	self._readyStage = ReadyStage.new(self)
 	self._dealingStage = DealingStage.new(self)
+	self._fightingState = FightingStage.new(self)
+	self._operatorUi = AoperatorUi.new(self)
 end
 
 function MjPlayingUi:_connectObserver()
-
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kEnterFighting, self, handler(self, self._enterFighting))
 end
 
 function MjPlayingUi:_unConnectObserver()
-
+	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterFighting, self)
 end
 
 function MjPlayingUi:start()
@@ -64,17 +65,13 @@ function MjPlayingUi:start()
 	self._dealingStage:began()
 end	
 
+function MjPlayingUi:_enterFighting()
+	self._fightingState:began()
+end
+
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)
 	return self._HandCards[seat]
-end
-
-function MjPlayingUi:getGData()
-	return self._gData
-end
-
-function MjPlayingUi:getSeats()
-	return self._seats
 end
 
 return MjPlayingUi

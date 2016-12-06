@@ -12,6 +12,7 @@ function Card:ctor()
 	self._isMine = false
 
 	--self:setCardType(mjDCardType.mj_init)  --一开始所有的牌都是默认牌
+	self:addNodeEventListener(cc.NODE_TOUCH_EVENT, handler(self, self._darkCardTouchListener))
 end		
 
 function Card:changeId(id)
@@ -54,7 +55,8 @@ end
 
 --出牌形式
 function Card:_changeToPlay()
-	local card = string.format(mjPlayCardKey .. "%d.png", self._id)
+	self:setTouchEnabled(false)
+	local card = string.format(mjPlayCardKey[self._seat] .. "%d.png", self._id)
 	self:setSpriteFrame(card)
 end
 
@@ -71,7 +73,7 @@ end
 
 function Card:_darkCardTouchListener(event)
 	if event.name == "began" then
-		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, {card = self, seat = self.m_seat})
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, self)
 		return false
 	end
 end

@@ -4,7 +4,7 @@ local this = nil  --之后的this都表示父节点
 function DealingStage:ctor(layer)
 	this = layer
 
-	
+	self._seats = GDataManager:getInstance():getSeats()
 end
 
 function DealingStage:began()
@@ -13,12 +13,12 @@ function DealingStage:began()
 	--發牌
 	--根据庄家位置定制一次发牌顺序
 	local seats = {}
-	for _,seat in pairs(this:getSeats()) do
+	for _,seat in pairs(self._seats) do
 		if seat >= 1 then
 			table.insert(seats, #seats + 1, seat)
 		end
 	end
-	for _,seat in pairs(this:getSeats()) do
+	for _,seat in pairs(self._seats) do
 		if seat < 1 then
 			table.insert(seats, #seats + 1, seat)
 		end
@@ -27,6 +27,8 @@ function DealingStage:began()
 		local array = MjDataControl:getInstance():getCardMjArray(13)
 		this:getHandCardsBySeat(seat):addHandCards(seat, array)
 	end
+	--当做发牌结束(进入出牌阶段)
+	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kEnterFighting)
 end
 
 return DealingStage

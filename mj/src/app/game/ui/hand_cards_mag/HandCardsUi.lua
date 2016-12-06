@@ -35,7 +35,9 @@ end
 --初始化：发牌阶段上牌多张；开始过程上牌是一张一张的上的；所以只用于初始化发牌
 function HandCardsUi:addHandCards(seat, cards)
 	self._seat = seat
-	for _,card in pairs(cards) do
+	self._isRobot = seat ~= 1
+	for id,card in pairs(cards) do
+		card:setIsMine(seat == 1)
 		table.insert(self._darkCards, #self._darkCards+1, card)
 	end
 
@@ -54,45 +56,57 @@ end
 	主要分有两种情况：1. 自己上牌 2. 他人出牌
 ]]
 --优先处理自己的过程（其他人只会抓牌 出牌）
-
-function HandCardsUi:_otherPlayCard(card)
-	--检测碰、杠、胡
+--自己上牌
+function HandCardsUi:mineFeelCard()
+	local card= MjDataControl:getInstance():getCardMjArray(1)[1]
+	card:setSeat(self._seat)
+	card:setIsMine(self._seat == 1)
+	card:setCardType(mjDCardType.mj_dark)
+	self._handCardPos:setUpCardParams(card)
+	card:setSortId(#self._darkCards+1)
 	table.insert(self._darkCards, #self._darkCards+1, card)
-	local isPeng = self:_checkPeng(card)
-	local isGang = self:_checkGang(card)
-	local isHu = self._huCheck:checkHu()
-	if not isPeng and not isGang and not isHu then
-		table.remove(self._darkCards, #self._darkCards)
-		return true
+	--检测 暗杠、自摸
+	local isDarkG = self:_checkDarkGang()
+	-- local isHu = self._huCheck:checkHu()
+	if self._isRobot then
+		--ai 直接出牌
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
+	else
+		--等待出牌(超过基础时间自动出牌)
+
 	end
+end
+
+
+function HandCardsUi:otherPlayCard(card)
+	--检测碰、杠、胡
+	-- table.insert(self._darkCards, #self._darkCards+1, card)
+	-- local isPeng = self:_checkPeng(card)
+	-- local isGang = self:_checkGang(card)
+	-- local isHu = self._huCheck:checkHu()
+	-- if not isPeng and not isGang and not isHu then
+	-- 	table.remove(self._darkCards, #self._darkCards)
+	-- 	return true
+	-- end
+
 end
 
 --上牌(他人出牌时，上牌检测; 自己摸牌时上牌检测)
-function HandCardsUi:upCard(type, card)
-	local other_ret = false
-	if type == kUpCardEnum.other then  --2
-		other_ret = self:_otherPlayCard(card)
-		return other_ret
-	elseif type == kUpCardEnum.mine then  --1
-		local cards= MjDataControl:getInstance():getCardMjArray(1)
-		self:_mineFeelCard(cards[1])
-	end
-end
+-- function HandCardsUi:upCard(type, card)
+-- 	local other_ret = false
+-- 	if type == kUpCardEnum.other then  --2
+-- 		-- other_ret = self:_otherPlayCard(card)
+-- 		-- return other_ret
+-- 	elseif type == kUpCardEnum.mine then  --1
+-- 		local cards= MjDataControl:getInstance():getCardMjArray(1)
+-- 		self:_mineFeelCard(cards[1])
+-- 	end
+-- end
 
-function HandCardsUi:playSuccess(card)
-	self._handCardPos:playingCardParams(self._seat, card)
+function HandCardsUi:playCardSuccess(card)
+	self._handCardPos:setPlayCardPos(card)
 	table.remove(self._darkCards, card:getSortId())
-	self:_darkCardChange()
-end
-
---自己上牌
-function HandCardsUi:_mineFeelCard(card)
-	--检测 暗杠、自摸
-	card:setSeat(self._seat)
-	self._handCardPos:setUpCardParams(self._seat, card)
-	table.insert(self._darkCards, #self._darkCards+1, card)
-	local isDarkG = self:_checkDarkGang()
-	local isHu = self._huCheck:checkHu()
+	self:_darkCardChange() --未加入插入动画
 end
 
 ---&***************Check**********************&---

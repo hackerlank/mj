@@ -36,28 +36,28 @@ mjCardBhH = 37
 -- mjAction_P = "action_a_p.png"  --碰
 mjActionBJ = "action_bj.png"  --背景
 mjActionG = {
-	normal = "action_g1.png",
-	pressed = "action_g2.png",
-	disabled = "action_g3.png",
+	normal = "#action_g1.png",
+	pressed = "#action_g2.png",
+	disabled = "#action_g3.png",
 }
 
 mjActionH = {
-	normal = "action_h1.png",
-	pressed = "action_h2.png",
-	disabled = "action_h3.png",
+	normal = "#action_h1.png",
+	pressed = "#action_h2.png",
+	disabled = "#action_h3.png",
 }
 
 mjActionP = {
-	normal = "action_p1.png",
-	pressed = "action_p2.png",
-	disabled = "action_p3.png",
+	normal = "#action_p1.png",
+	pressed = "#action_p2.png",
+	disabled = "#action_p3.png",
 }
 
 --過
 mjActionX = {
-	normal = "action_x1.png",
-	pressed = "action_x2.png",
-	disabled = "action_x3.png",
+	normal = "#action_x1.png",
+	pressed = "#action_x2.png",
+	disabled = "#action_x3.png",
 }
 
 mjActionWan = {
