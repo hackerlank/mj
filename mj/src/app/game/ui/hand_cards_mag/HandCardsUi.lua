@@ -2,10 +2,18 @@
 --[[
 	1.手牌统一放游戏界面上管理
 	2.暗牌、明牌两部分
+	
+	1.手牌、暗牌、杠牌、胡牌、碰牌
+	AI:
+		
+	玩家:
+		1.操作界面 （检测到 杠、碰、胡、过）
 ]]
 --===========================================
 local HandCardPos = import(".HandCardPos")
 local HuCheck = require("app.game.control.HuCheck")
+local RobotManager = import(".RobotManager")
+local PlayerManager = import(".PlayerManager")
 local HandCardsUi = class("HandCardsUi")
 
 local kUpCardEnum = {
@@ -14,14 +22,15 @@ local kUpCardEnum = {
 	other = 2
 }
 
-function HandCardsUi:ctor(parent)
-	self._parent = parent
+local this = nil
 
-	self._isRobot = false
+function HandCardsUi:ctor(layer)
+	this = layer
+	self._manager = nil   --反应管理（AI和玩家区别）
+
 	self._seat = 0  --初始化的玩家
 	self._darkCards = {}  --暗牌
-	self._pengCards = {}  --明牌|碰
-	self._gangCards = {}  --明牌|杠
+	self._showCards = {}  --明牌|碰
 
 	--每次手牌变动都要更新
 	self._jiang = {}
@@ -35,7 +44,11 @@ end
 --初始化：发牌阶段上牌多张；开始过程上牌是一张一张的上的；所以只用于初始化发牌
 function HandCardsUi:addHandCards(seat, cards)
 	self._seat = seat
-	self._isRobot = seat ~= 1
+	if seat == 1 then
+		self._manager = PlayerManager.new()
+	else
+		self._manager = RobotManager.new()
+	end
 	for id,card in pairs(cards) do
 		card:setIsMine(seat == 1)
 		table.insert(self._darkCards, #self._darkCards+1, card)
@@ -65,16 +78,13 @@ function HandCardsUi:mineFeelCard()
 	self._handCardPos:setUpCardParams(card)
 	card:setSortId(#self._darkCards+1)
 	table.insert(self._darkCards, #self._darkCards+1, card)
-	--检测 暗杠、自摸
-	local isDarkG = self:_checkDarkGang()
-	-- local isHu = self._huCheck:checkHu()
-	if self._isRobot then
-		--ai 直接出牌
-		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
-	else
-		--等待出牌(超过基础时间自动出牌)
 
-	end
+	--检测 暗杠、自摸
+	self:_setPramsByKey()  --找出杠子等牌,检测杠
+	self._manager:checkDarkGang(self:_checkDarkGang()) --检测暗杠
+	self._manager:waitPlayCard(card)
+	--
+	-- local isHu = self._huCheck:checkHu()
 end
 
 
@@ -90,18 +100,6 @@ function HandCardsUi:otherPlayCard(card)
 	-- end
 
 end
-
---上牌(他人出牌时，上牌检测; 自己摸牌时上牌检测)
--- function HandCardsUi:upCard(type, card)
--- 	local other_ret = false
--- 	if type == kUpCardEnum.other then  --2
--- 		-- other_ret = self:_otherPlayCard(card)
--- 		-- return other_ret
--- 	elseif type == kUpCardEnum.mine then  --1
--- 		local cards= MjDataControl:getInstance():getCardMjArray(1)
--- 		self:_mineFeelCard(cards[1])
--- 	end
--- end
 
 function HandCardsUi:playCardSuccess(card)
 	self._handCardPos:setPlayCardPos(card)
@@ -122,19 +120,41 @@ end
 --每次上牌时检测 暗杠
 function HandCardsUi:_checkDarkGang()
 	for _,cards in pairs(self._gangzi) do
-		print("----------检测有暗杠--------------")
+		return true
 	end
 end
 
-function HandCardsUi:_checkGang(card)
-	for _,cards in pairs(self._kezi) do
-		if cards[1]:getId() == card:getId() then
-			print("----------检测到杠--------------")
-			return true
+-- function HandCardsUi:_checkGang(card)
+-- 	for _,cards in pairs(self._kezi) do
+-- 		if cards[1]:getId() == card:getId() then
+-- 			print("----------检测到杠--------------")
+-- 			return true
+-- 		end
+-- 	end
+-- end
+---&***************do check**********************&---
+function HandCardsUi:_removeCards(cards)
+	local index = 0
+	for _,_card in pairs(cards) do
+		for id,__card in pairs(self._darkCards) do
+			if _card:getId() == __card:getId() then
+				table.remove(self._darkCards, __card:getSortId() - index)
+				index = index + 1
+				break
+			end
 		end
 	end
 end
 
+function HandCardsUi:doGang(cards)
+	table.insert(self._showCards, {
+		type = mjNoDCardType.dgang,
+		value = cards
+		})
+	self:_removeCards(cards)
+	self:_darkCardChange()
+	self._handCardPos:setShowCardPos()
+end
 --===========================================================================
 
 --分割手牌
@@ -175,6 +195,14 @@ end
 
 function HandCardsUi:getKezi()
 	return self._kezi
+end
+
+function HandCardsUi:getGangzi()
+	return self._gangzi
+end
+
+function HandCardsUi:getShowCards()
+	return self._showCards
 end
 
 function HandCardsUi:getSeat()

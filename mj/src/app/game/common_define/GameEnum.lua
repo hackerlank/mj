@@ -1,3 +1,6 @@
+mjDarkGang = 100
+mjGang = 101
+
 mjCardType = {
 	mj_wan = 0,
 	mj_bing = 1,
@@ -7,11 +10,23 @@ mjCardType = {
 	mj_hua = 5
 }
 
+mjNoDCardType = {
+	peng = 1,
+	dgang = 2,
+	gang = 3
+}
+
+--游戏场景
+mjLocalZorders = {
+	card = 30, 
+	operate_ui = 100, --从100开始
+}
+
 mjDCardType = {
 	mj_init = 1,
 	mj_dark = 2,  --手持
 	mj_play = 3,  --已出
-	mj_tdark = 4, --未手持（暗杠的暗牌）
+	mj_tdark = 4, --未手持（暗杠的暗牌） []
 	mj_show = 5,  --未手持（碰、杠牌等）
 }
 
@@ -35,7 +50,7 @@ mjPlayCardKey = {
 
 --暗杠暗牌情况(手牌区域)
 mjTDarkCardKey = {
-	[1] = "bs.png",
+	[1] = "bs.png", --66 * 94
 	[2] = "bh.png",
 	[3] = "bsx.png",
 	[4] = "bh.png"

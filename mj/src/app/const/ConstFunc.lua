@@ -7,3 +7,15 @@ function touchMoveDistance(x1,y1,x2,y2,dis)
   end
   return ret 
 end
+
+function func_remove_tbs(gtb, tb)
+	for _,_v in pairs(tb) do
+		for id,__v in pairs(gtb) do
+			if _v == __v then
+				table.remove(gtb, id)
+				break
+			end
+		end
+	end
+	return gtb
+end

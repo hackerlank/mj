@@ -62,15 +62,20 @@ end
 function MjDataControl:_randMjArray()
 	local array = clone(mjArray)
 	local cards = {}
-	local num = #mjArray
-	while num >= 1 do
-		local index = math.random(1, num)
-		--移除随机出来的这个
+	-- local num = #mjArray
+	-- while num >= 1 do
+	-- 	local index = math.random(1, num)
+	-- 	--移除随机出来的这个
+	-- 	local dark_card = Card.new()
+	-- 	dark_card:changeId(array[index])
+	-- 	table.insert(cards,#cards+1, dark_card)
+	-- 	table.remove(array, index)
+	-- 	num = num - 1
+	-- end
+	for _,val in pairs(array) do
 		local dark_card = Card.new()
-		dark_card:changeId(array[index])
+		dark_card:changeId(val)
 		table.insert(cards,#cards+1, dark_card)
-		table.remove(array, index)
-		num = num - 1
 	end
 	--打乱结束则不会再改变牌顺序
 	self.m_mj_array = cards

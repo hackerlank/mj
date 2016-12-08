@@ -7,6 +7,10 @@ local HandCardPos = class("HandCardPos")
 function HandCardPos:ctor(hand_card)
 	self._handCard = hand_card  --手牌类
 
+	--=============未手持， 碰、杠、暗杠的牌位置展示
+	self._showBeganPos = nil
+	self._upCardDistance = 0  --上牌离手牌距离
+	--=============
 	self._playCardNum = 0  --已打出多少张牌
 	self._numIndex = 0
 end
@@ -50,13 +54,17 @@ function HandCardPos:setUpCardParams(card)
 	local num = #cards + 1
 	local beganPos = mjDarkPositions[seat]
 	if seat == 1 then  --66*94
-		card:pos(66 * num + 90, beganPos.y)
+		card:pos(66 * num + 20, beganPos.y)
+		self._upCardDistance = 20
 	elseif seat == 2 then  --16*40
 		card:pos(beganPos.x, beganPos.y + 40 * num + 30)
+		self._upCardDistance = 30
 	elseif seat == 3 then  --66* 94
 		card:pos(beganPos.x - 66* num - 90, beganPos.y)
+		self._upCardDistance = -90
 	else
 		card:pos(beganPos.x, beganPos.y - 40* num - 30)
+		self._upCardDistance = -30
 	end
 end
 
@@ -103,6 +111,57 @@ function HandCardPos:_seat4PlayPos(card)
 	local beganP = mjPlayPositions[4]
 	local disX = math.floor(self._playCardNum/8) * 40
 	card:pos(beganP.x-disX, beganP.y-self._numIndex * 37)
+end
+
+--有杠牌 碰牌_showCards
+function HandCardPos:setShowCardPos()
+	--位置初始位置是手牌之后
+	local cards = self._handCard:getDarkList()
+	local card_lists = self._handCard:getShowCards()
+	local seat = self._handCard:getSeat()
+
+	--[[
+		位置不一样的人 牌长宽不一样，初始位置不一样
+	]]
+	if seat == 1 then
+		self._showBeganPos = cc.p(mjDarkPositions[1].x + #cards * 66 + 170 + self._upCardDistance, mjDarkPositions[1].y)
+	elseif seat == 2 then
+	elseif seat == 3 then
+	elseif seat == 4 then
+	end
+
+	dump(card_lists)
+
+	for _,card_list in pairs(card_lists) do
+		if card_list.type == mjNoDCardType.peng or card_list.type == mjNoDCardType.gang then
+			--碰和明杠展示是一样的
+			self:_setPengPos(cards, card_list.value, seat)
+		elseif card_list.type == mjNoDCardType.dgang then
+			self:_setDGang(cards, card_list.value, seat)
+		end
+	end
+end
+
+function HandCardPos:_setPengPos(cards, card_list)
+	if seat == 1 then
+	elseif seat == 2 then
+	elseif seat == 3 then
+	elseif seat == 4 then
+	end
+end
+
+function HandCardPos:_setDGang(cards, card_list)
+	local num = #card_list
+	for id,card in pairs(card_list) do
+		card:setCardType(mjDCardType.mj_tdark)
+		if id ~= num then
+			card:pos(self._showBeganPos.x, self._showBeganPos.y)
+			self._showBeganPos.x = self._showBeganPos.x + 66
+		else
+			card:setCardType(mjDCardType.mj_show)
+			card:pos(self._showBeganPos.x - 66*2, self._showBeganPos.y+24)
+		end
+	end
 end
 
 return HandCardPos

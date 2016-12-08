@@ -67,7 +67,7 @@ GPositions = {
 
 --手牌位置
 mjDarkPositions = {
-	[1] = cc.p(50, 50),  --本家手牌的位置
+	[1] = cc.p(0, 50),  --本家手牌的位置
 	[2] = cc.p(display.width - 50, 100),
 	[3] = cc.p(display.width - 50, display.height-50),
 	[4] = cc.p(50, display.height - 50)

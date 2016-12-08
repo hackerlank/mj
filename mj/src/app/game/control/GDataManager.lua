@@ -13,7 +13,7 @@ function GDataManager:ctor()
 end
 
 function GDataManager:reset()
-	self._seats = {1,2,3,4}
+	self._seats = {1}
 
 end
 
