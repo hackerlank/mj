@@ -5,7 +5,7 @@ local this = nil
 function AoperatorUi:ctor(layer)
 	this = layer
 
-	self:addTo(this)
+	self:addTo(this, mjLocalZorders.operate_ui)
 	self:pos(display.cx, 200)
 
 	self._buttons = {}

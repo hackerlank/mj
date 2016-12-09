@@ -19,7 +19,7 @@ mjNoDCardType = {
 --游戏场景
 mjLocalZorders = {
 	card = 30, 
-	operate_ui = 100, --从100开始
+	operate_ui = 200, --从100开始
 }
 
 mjDCardType = {

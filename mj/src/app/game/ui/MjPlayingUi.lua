@@ -49,7 +49,7 @@ function MjPlayingUi:_setupUi()
 	self._readyStage = ReadyStage.new(self)
 	self._dealingStage = DealingStage.new(self)
 	self._fightingState = FightingStage.new(self)
-	self._operatorUi = AoperatorUi.new(self, mjLocalZorders.operate_ui)
+	self._operatorUi = AoperatorUi.new(self)
 end
 
 function MjPlayingUi:_connectObserver()
