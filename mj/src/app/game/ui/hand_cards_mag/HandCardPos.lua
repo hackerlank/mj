@@ -12,7 +12,16 @@ function HandCardPos:ctor(hand_card)
 	self._upCardDistance = 0  --上牌离手牌距离
 	--=============
 	self._playCardNum = 0  --已打出多少张牌
-	self._numIndex = 0
+	self._numIndex = 0     --这两条都用于计算打出牌的位置
+end
+
+function HandCardPos:subPlayCardNum()
+	--todo: 打出的手牌 被碰、杠、胡了
+	self._playCardNum = self._playCardNum - 1
+	self._numIndex = self._numIndex - 1
+	if self._numIndex < 0 then
+		self._numIndex = 0
+	end
 end
 
 --[[
@@ -34,11 +43,11 @@ function HandCardPos:sortDarkCards()
 		if seat == 1 then  --66*94
 			card:pos(beganPos.x + 66* _, beganPos.y)
 		elseif seat == 2 then  --16*40
-			card:pos(beganPos.x, beganPos.y + 40* _)
+			card:pos(beganPos.x, beganPos.y + 35* _)
 		elseif seat == 3 then  --66* 94
 			card:pos(beganPos.x - 66* _, beganPos.y)
 		else
-			card:pos(beganPos.x, beganPos.y - 40* _)
+			card:pos(beganPos.x, beganPos.y - 35* _)
 		end
 	end
 end
@@ -57,20 +66,21 @@ function HandCardPos:setUpCardParams(card)
 		card:pos(66 * num + 20, beganPos.y)
 		self._upCardDistance = 20
 	elseif seat == 2 then  --16*40
-		card:pos(beganPos.x, beganPos.y + 40 * num + 30)
-		self._upCardDistance = 30
+		card:pos(beganPos.x, beganPos.y + 40 * num + 10)
+		self._upCardDistance = 40
 	elseif seat == 3 then  --66* 94
 		card:pos(beganPos.x - 66* num - 90, beganPos.y)
-		self._upCardDistance = -90
+		self._upCardDistance = -20
 	else
-		card:pos(beganPos.x, beganPos.y - 40* num - 30)
-		self._upCardDistance = -30
+		card:pos(beganPos.x, beganPos.y - 40* num - 10)
+		self._upCardDistance = -40
 	end
 end
 
 --[[
 	打出手牌位置
 ]]
+local kPlayerCardNum = 12
 function HandCardPos:setPlayCardPos(card)
 	local seat = self._handCard:getSeat()
 	if seat == 1 then
@@ -84,32 +94,32 @@ function HandCardPos:setPlayCardPos(card)
 	end
 	self._playCardNum = self._playCardNum + 1
 	self._numIndex = self._numIndex + 1
-	if self._numIndex%8 == 0 then
+	if self._numIndex % kPlayerCardNum == 0 then
 		self._numIndex = 0
 	end
 end
 
 function HandCardPos:_seat1PlayPos(card)
 	local beganP = mjPlayPositions[1]
-	local disX = math.floor(self._playCardNum/8) * 47
+	local disX = math.floor(self._playCardNum/kPlayerCardNum) * 47
 	card:pos(beganP.x + self._numIndex * 33, beganP.y-disX)
 end
 
 function HandCardPos:_seat2PlayPos(card)
 	local beganP = mjPlayPositions[2]
-	local disX = math.floor(self._playCardNum/8) * 40
+	local disX = math.floor(self._playCardNum/kPlayerCardNum) * 40
 	card:pos(beganP.x + disX, beganP.y + self._numIndex * 37)
 end
 
 function HandCardPos:_seat3PlayPos(card)
 	local beganP = mjPlayPositions[3]
-	local disX = math.floor(self._playCardNum/8) * 47
+	local disX = math.floor(self._playCardNum/kPlayerCardNum) * 47
 	card:pos(beganP.x - self._numIndex * 33, beganP.y+disX)
 end
 
 function HandCardPos:_seat4PlayPos(card)
 	local beganP = mjPlayPositions[4]
-	local disX = math.floor(self._playCardNum/8) * 40
+	local disX = math.floor(self._playCardNum/kPlayerCardNum) * 40
 	card:pos(beganP.x-disX, beganP.y-self._numIndex * 37)
 end
 
@@ -124,43 +134,62 @@ function HandCardPos:setShowCardPos()
 		位置不一样的人 牌长宽不一样，初始位置不一样
 	]]
 	if seat == 1 then
-		self._showBeganPos = cc.p(mjDarkPositions[1].x + #cards * 66 + 170 + self._upCardDistance, mjDarkPositions[1].y)
+		self._showBeganPos = cc.p(mjDarkPositions[1].x + #cards*mjDarkCardSize[1].width + 170 + self._upCardDistance, mjDarkPositions[1].y)
 	elseif seat == 2 then
+		self._showBeganPos = cc.p(mjDarkPositions[2].x, mjDarkPositions[2].y + #cards * mjDarkCardSize[2].height + self._upCardDistance)
 	elseif seat == 3 then
+		self._showBeganPos = cc.p(mjDarkPositions[3].x - #cards*mjDarkCardSize[3].width - 130 - self._upCardDistance, mjDarkPositions[3].y)
 	elseif seat == 4 then
+		self._showBeganPos = cc.p(mjDarkPositions[4].x, mjDarkPositions[4].y - #cards * mjDarkCardSize[4].height - 30 - self._upCardDistance)
 	end
-
-	dump(card_lists)
 
 	for _,card_list in pairs(card_lists) do
-		if card_list.type == mjNoDCardType.peng or card_list.type == mjNoDCardType.gang then
-			--碰和明杠展示是一样的
-			self:_setPengPos(cards, card_list.value, seat)
-		elseif card_list.type == mjNoDCardType.dgang then
-			self:_setDGang(cards, card_list.value, seat)
+		self:_setShowCardsPosition(cards, card_list, seat)
+	end
+end
+
+function HandCardPos:_setShowCardsPosition(cards, card_list, seat)
+	local list = card_list.value
+	local type_ = card_list.type
+	local num = #list
+
+	for id,card in pairs(list) do
+		card:setLocalZOrder(id)
+		card:setSeat(seat)
+		if type_ == mjNoDCardType.peng or type_ == mjNoDCardType.gang then
+			card:setCardType(mjDCardType.mj_show)
+		elseif type_ == mjNoDCardType.dgang then
+			card:setCardType(mjDCardType.mj_tdark)
 		end
-	end
-end
-
-function HandCardPos:_setPengPos(cards, card_list)
-	if seat == 1 then
-	elseif seat == 2 then
-	elseif seat == 3 then
-	elseif seat == 4 then
-	end
-end
-
-function HandCardPos:_setDGang(cards, card_list)
-	local num = #card_list
-	for id,card in pairs(card_list) do
-		card:setCardType(mjDCardType.mj_tdark)
-		if id ~= num then
+		
+		if id ~= 4 then
 			card:pos(self._showBeganPos.x, self._showBeganPos.y)
-			self._showBeganPos.x = self._showBeganPos.x + 66
+			if seat == 1 then
+				self._showBeganPos.x = self._showBeganPos.x + mjShowCardSize[seat].width
+			elseif seat == 3 then
+				self._showBeganPos.x = self._showBeganPos.x - mjShowCardSize[seat].width
+			elseif seat == 2 then
+				self._showBeganPos.y = self._showBeganPos.y + mjShowCardSize[seat].height
+			elseif seat == 4 then
+				self._showBeganPos.y = self._showBeganPos.y - mjShowCardSize[seat].height
+			end
 		else
 			card:setCardType(mjDCardType.mj_show)
-			card:pos(self._showBeganPos.x - 66*2, self._showBeganPos.y+24)
+			if seat == 1 then
+				card:pos(self._showBeganPos.x - mjShowCardSize[seat].width*2, self._showBeganPos.y+24)
+			elseif seat == 3 then
+				card:pos(self._showBeganPos.x + mjShowCardSize[seat].width*2, self._showBeganPos.y+24)
+			elseif seat == 2 then
+				card:pos(self._showBeganPos.y + mjShowCardSize[seat].height*2, self._showBeganPos.x+24)
+			elseif seat == 4 then
+				card:pos(self._showBeganPos.y - mjShowCardSize[seat].height*2, self._showBeganPos.x+24)
+			end
 		end
+	end
+	if seat == 1 or seat == 3 then
+		self._showBeganPos.x = self._showBeganPos.x + (seat == 1 and 10 or -10)
+	else
+		self._showBeganPos.y = self._showBeganPos.y + (seat == 2 and 10 or -10)
 	end
 end
 

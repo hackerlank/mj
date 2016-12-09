@@ -18,8 +18,8 @@ function SurplusPosition:setupUi()
 	--mjCardBsxW
 	local Hdis = 10
 	local Wdis = 15
-	local disW = 280
-	local disH = 230
+	local disW = 260
+	local disH = 160
 	local cardArray = MjDataControl:getInstance():getMjArray()
 	if #cardArray == 108 then
 		vecs = {26,28,26,28}

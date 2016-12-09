@@ -37,6 +37,10 @@ function HandCardsUi:ctor(layer)
 	self._kezi = {}
 	self._gangzi = {}
 
+	--存入碰牌
+	self._peng = nil  --碰只能有一对
+	self._gang = nil
+
 	self._huCheck = HuCheck.new(self)
 	self._handCardPos = HandCardPos.new(self)
 end
@@ -47,7 +51,7 @@ function HandCardsUi:addHandCards(seat, cards)
 	if seat == 1 then
 		self._manager = PlayerManager.new()
 	else
-		self._manager = RobotManager.new()
+		self._manager = RobotManager.new(this, seat)
 	end
 	for id,card in pairs(cards) do
 		card:setIsMine(seat == 1)
@@ -62,6 +66,7 @@ end
 function HandCardsUi:_darkCardChange()
 	self._handCardPos:sortDarkCards()
 	self:_setPramsByKey()  --找出将、刻子、杠子
+	self._handCardPos:setShowCardPos()
 end
 
 
@@ -90,9 +95,21 @@ end
 
 function HandCardsUi:otherPlayCard(card)
 	--检测碰、杠、胡
-	-- table.insert(self._darkCards, #self._darkCards+1, card)
-	-- local isPeng = self:_checkPeng(card)
-	-- local isGang = self:_checkGang(card)
+	--self:_setPramsByKey()  --找出杠子等牌,检测杠
+	local isGang = self:_checkGang(card)
+	self._manager:checkGang(isGang)
+	local isPeng = self:_checkPeng(card)
+	self._manager:checkPeng(isPeng)
+
+	local fighting_type = nil
+	if isHu then
+		fighting_type = mjFighintInfoType.hu
+	elseif isGang then
+		fighting_type = mjFighintInfoType.gang
+	elseif isPeng then
+		fighting_type = mjFighintInfoType.peng
+	end
+	GDataManager:getInstance():setFighingInfo(self._seat, fighting_type)
 	-- local isHu = self._huCheck:checkHu()
 	-- if not isPeng and not isGang and not isHu then
 	-- 	table.remove(self._darkCards, #self._darkCards)
@@ -101,17 +118,32 @@ function HandCardsUi:otherPlayCard(card)
 
 end
 
+--===============================================
+--重置
+function HandCardsUi:retsetPeng()
+	self._peng = nil
+end
+
+function HandCardsUi:resetGang()
+	self._gang = nil
+end
+--===============================================
+
 function HandCardsUi:playCardSuccess(card)
 	self._handCardPos:setPlayCardPos(card)
 	table.remove(self._darkCards, card:getSortId())
 	self:_darkCardChange() --未加入插入动画
+
+	self:retsetPeng()
+	self:resetGang()
 end
 
 ---&***************Check**********************&---
 function HandCardsUi:_checkPeng(card)
 	for _,cards in pairs(self._jiang) do
 		if cards[1]:getId() == card:getId() then
-			print("----------检测到碰--------------")
+			table.insert(cards, #cards+1, card)
+			self._peng = cards
 			return true
 		end
 	end
@@ -119,19 +151,18 @@ end
 
 --每次上牌时检测 暗杠
 function HandCardsUi:_checkDarkGang()
-	for _,cards in pairs(self._gangzi) do
-		return true
-	end
+	return (#self._gangzi > 0)
 end
 
--- function HandCardsUi:_checkGang(card)
--- 	for _,cards in pairs(self._kezi) do
--- 		if cards[1]:getId() == card:getId() then
--- 			print("----------检测到杠--------------")
--- 			return true
--- 		end
--- 	end
--- end
+function HandCardsUi:_checkGang(card)
+	for _,cards in pairs(self._kezi) do
+		if cards[1]:getId() == card:getId() then
+			table.insert(cards, #cards+1, card)
+			self._gang = cards
+			return true
+		end
+	end
+end
 ---&***************do check**********************&---
 function HandCardsUi:_removeCards(cards)
 	local index = 0
@@ -146,14 +177,50 @@ function HandCardsUi:_removeCards(cards)
 	end
 end
 
-function HandCardsUi:doGang(cards)
+function HandCardsUi:_doActionAfter()
+
+end
+
+--明杠只有一个 暗杠可能有多个
+function HandCardsUi:doGang()
+	if self._gang then
+		table.insert(self._showCards, {
+			type = mjNoDCardType.dgang,
+			value = self._gang
+			})
+		self:_removeCards(self._gang)
+		self:_darkCardChange()
+
+		GDataManager:getInstance():resetSortFightInfo(true)
+		this:updateSeatIndex(self._seat)
+	end
+end
+
+--[[
+	手上本来就有一副暗杠， 又检测到明杠
+]]
+function HandCardsUi:doDarkGang(cards)
 	table.insert(self._showCards, {
 		type = mjNoDCardType.dgang,
 		value = cards
-		})
+	})
 	self:_removeCards(cards)
 	self:_darkCardChange()
-	self._handCardPos:setShowCardPos()
+end
+
+function HandCardsUi:doPeng()
+	if self._peng then
+		table.insert(self._showCards, {
+			type = mjNoDCardType.peng,
+			value = self._peng
+			})
+		self:_removeCards(self._peng)
+		self:_darkCardChange()
+		self._peng = nil
+
+		GDataManager:getInstance():resetSortFightInfo(true)
+		this:updateSeatIndex(self._seat)
+	end
 end
 --===========================================================================
 
@@ -207,6 +274,14 @@ end
 
 function HandCardsUi:getSeat()
 	return self._seat
+end
+
+function HandCardsUi:getHandCardPos()
+	return self._handCardPos
+end
+
+function HandCardsUi:getManager()
+	return self._manager
 end
 
 return HandCardsUi

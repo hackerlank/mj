@@ -16,6 +16,13 @@ mjNoDCardType = {
 	gang = 3
 }
 
+--胡牌优先级确定
+mjFighintInfoType = {
+	hu = 3,
+	gang = 2,
+	peng = 1
+}
+
 --游戏场景
 mjLocalZorders = {
 	card = 30, 
@@ -40,12 +47,23 @@ mjDarkCardKey = {
 	[4] = "bz.png"
 }
 
+mjDarkCardSize = {
+	[1] = cc.size(66, 94),
+	[2] = cc.size(16, 40),
+	[3] = cc.size(66, 94),
+	[4] = cc.size(16, 40),
+}
+
 --打出的牌键值
 mjPlayCardKey = {
 	[1] = "szx_",
 	[2] = "yx_",
 	[3] = "sfx_",
 	[4] = "zx_"
+}
+
+mjPlayCardSize = {
+	
 }
 
 --暗杠暗牌情况(手牌区域)
@@ -56,6 +74,10 @@ mjTDarkCardKey = {
 	[4] = "bh.png"
 }
 
+mjTDarkCardSize = {
+	
+}
+
 --碰、杠、胡等明牌情况（手牌区域）
 mjShowCardKey = {
 	[1] = "sz_",
@@ -64,9 +86,19 @@ mjShowCardKey = {
 	[4] = mjPlayCardKey[4]
 }
 
+mjShowCardSize = {
+	[1] = cc.size(66, 94),
+	[2] = cc.size(40, 37),
+	[3] = cc.size(33, 47),
+	[4] = cc.size(40, 37),
+}
+
 mjInitCardKey = {
 	[1] = "bsx.png",
 	[2] = "bh.png",
 	[3] = "bsx.png",
 	[4] = "bh.png",
+}
+mjInitCardSize = {
+	
 }

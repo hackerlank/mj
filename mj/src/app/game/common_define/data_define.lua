@@ -75,8 +75,8 @@ mjDarkPositions = {
 
 --出牌起始位置
 mjPlayPositions = {
-	[1] = cc.p(display.cx-100, 200),
-	[2] = cc.p(display.width-200, 250),
-	[3] = cc.p(display.width-200, display.height - 200),
-	[4] = cc.p(display.cx-100, display.height - 200),
+	[1] = cc.p(300, 180),
+	[2] = cc.p(display.width-150, 150),
+	[3] = cc.p(display.width-300, display.height - 150),
+	[4] = cc.p(150, display.height - 150),
 }

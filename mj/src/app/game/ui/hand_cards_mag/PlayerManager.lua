@@ -10,7 +10,6 @@ end
 
 --检测到暗杠
 function PlayerManager:checkDarkGang(ret)
-	print(ret and "玩家检测到杠" or "")
 	if ret then
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kMineGang, mjDarkGang)
 	end
@@ -22,12 +21,18 @@ function PlayerManager:checkGang(ret)
 	end
 end
 
-function PlayerManager:checkPeng()
-
+function PlayerManager:checkPeng(ret)
+	if ret then
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPeng, ret)
+	end
 end
 
 function PlayerManager:checkHu()
 
+end
+
+function PlayerManager:doAction()
+	print("对于玩家这个函数并没有什么卵用")
 end
 
 return PlayerManager

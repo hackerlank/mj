@@ -16,6 +16,7 @@ local SpriteRes = {
 
 function MjPlayingUi:ctor()
 	--data
+	GDataManager:getInstance():setLayer(self)
 	GDataManager:getInstance():reset()
 	self._seats = GDataManager:getInstance():getSeats()
 	--ui
@@ -69,6 +70,16 @@ function MjPlayingUi:_enterFighting()
 	self._fightingState:began()
 end
 
+--非本类调用、中转过程
+function MjPlayingUi:updateSeatIndex(seat)
+	self._fightingState:updateSeatIndex(seat)
+end
+
+function MjPlayingUi:hideOperatorUi()
+	self._operatorUi:hide()
+end
+
+--==========================================================
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)
 	return self._HandCards[seat]

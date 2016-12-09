@@ -6,4 +6,7 @@ ListenerIds = {
 	kNextSeat = "next_seat",    --下一个上牌
 
 	kMineGang = "gang",  --自己上牌有杠
+	kPeng = "peng", 
+
+	kXGuo = "guo",   --过牌
 }

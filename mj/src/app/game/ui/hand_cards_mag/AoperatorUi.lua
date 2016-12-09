@@ -31,6 +31,7 @@ function AoperatorUi:ctor(layer)
 	self:hide()
 
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kMineGang, self, handler(self, self._checkGangResult))
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kPeng, self, handler(self, self._checkPengResult))
 end
 
 function AoperatorUi:destroy()
@@ -51,6 +52,13 @@ function AoperatorUi:_checkGangResult(gang_type)
 	self:setButtonEnable(2)
 end
 
+function AoperatorUi:_checkPengResult(ret)
+	if ret then
+		self:_showOperatorUi()
+		self:setButtonEnable(1)
+	end
+end
+
 --===================================
 
 function AoperatorUi:_resetButtonsEnable()
@@ -64,23 +72,28 @@ function AoperatorUi:setButtonEnable(index)
 end
 
 function AoperatorUi:_actionPClickListener()
-
+	self:hide()
+	this:getHandCardsBySeat(1):doPeng()
 end
 
 function AoperatorUi:_actionGClickListener()
-	local gangzi = this:getHandCardsBySeat(1):getGangzi()  --所有杠子
-	--这里之所以拿到这里来操作， 暗杠可能存在两副
-	this:getHandCardsBySeat(1):doGang(gangzi[1])
 	self:hide()
+	if self._isDarkGang then
+		local gangzi = this:getHandCardsBySeat(1):getGangzi()  --所有杠子
+		this:getHandCardsBySeat(1):doDarkGang(gangzi[1])
+	else
+		this:getHandCardsBySeat(1):doGang()
+	end
 	this:getHandCardsBySeat(1):mineFeelCard()  --再次上牌
 end
 
 function AoperatorUi:_actionHClickListener()
-
+	self:hide()
 end
 
 function AoperatorUi:_actionXClickListener()
-
+	self:hide()
+	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kXGuo)
 end
 
 return AoperatorUi
