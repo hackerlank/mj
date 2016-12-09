@@ -66,7 +66,7 @@ function FightingStage:_playCardSuccess(card)
 		this:getHandCardsBySeat(operate_seats[1]):getManager():doAction()  --ai直接执行了？
 		--GDataManager:getInstance():resetSortFightInfo(true)  等待未执行 进入下一轮
 		--AI会有自己的响应机制 如果超时，则肯定是玩家未操作，按过处理
-
+		--
 	else
 		--直接进入下一个
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
