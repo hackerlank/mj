@@ -18,11 +18,11 @@ function SurplusPosition:setupUi()
 	--mjCardBsxW
 	local Hdis = 10
 	local Wdis = 15
-	local disW = 260
-	local disH = 160
+	local disW = 370
+	local disH = 230
 	local cardArray = MjDataControl:getInstance():getMjArray()
 	if #cardArray == 108 then
-		vecs = {26,28,26,28}
+		vecs = {28,26,28,26}
 	elseif #cardArray == 136 then
 		vecs = {34,34,34,34}
 	end
@@ -32,9 +32,9 @@ function SurplusPosition:setupUi()
 	local pos4 = cc.p(display.cx-disW, display.cy+(vecs[4]-5)*mjCardBhH/4)
 	local posAr = {pos1, pos2, pos3, pos4}
 
-	local Type2Index = 28
-	local Type1Index = 26
-	local Type3Index = 26
+	local Type2Index = 60
+	local Type1Index = 60
+	local Type3Index = 60
 	local function getPos(id, type)
 		local x, y = posAr[type].x, posAr[type].y
 		if id % 2 == 0 then
@@ -60,24 +60,20 @@ function SurplusPosition:setupUi()
 	for id,card in pairs(cardArray) do
 		--標志位： card_bpos:哪一家上 card_bid: 序號
 		if id <= vecs[1] then
-			--card:setSpriteFrame(mjCardBsx)
 			card:setSeat(1)
 			card:setPosition(getPos(id, 1))
 			card:addTo(this, Type1Index)
 			Type1Index = Type1Index - 1
 		elseif id <= (vecs[1]+vecs[2]) then
-			--card:setSpriteFrame(mjCardBh)
 			card:setSeat(2)
 			card:setPosition(getPos(id, 2))
 			card:addTo(this, Type2Index)
 		elseif id <= (vecs[1]+vecs[2]+vecs[3]) then
-			--card:setSpriteFrame(mjCardBsx)
 			card:setSeat(3)	
 			card:setPosition(getPos(id, 3))
 			card:addTo(this, Type3Index)
 			Type3Index = Type3Index - 1
 		elseif id <= (vecs[1]+vecs[2]+vecs[3]+vecs[4]) then
-			--card:setSpriteFrame(mjCardBh)
 			card:setSeat(4)
 			card:setPosition(getPos(id, 4))
 			card:addTo(this)

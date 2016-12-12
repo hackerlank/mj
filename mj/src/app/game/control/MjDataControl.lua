@@ -10,16 +10,14 @@ local sz_gets = {
 		[1] = {
 			began = 3, 
 			isShun = false
-			--={began = 3, ends = 108},
-			--{began = 1, ends = 2}
 		},
 		[2] = {
-			{began = 50, ends = 1},
-			{began = 108, ends = 51}
+			began = 50,
+			isShun = true
 		},
 		[3] = {
-			{began = 74, ends = 1},
-			{began = 108, ends = 73}
+			began = 74, 
+			isShun = false
 		},
 		[4] = {
 			{began = 89, ends = 108},

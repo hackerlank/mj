@@ -5,6 +5,7 @@ GDataManager = require("app.game.control.GDataManager")
 --ui
 local HandCardsUi = import(".hand_cards_mag.HandCardsUi")
 local AoperatorUi = import(".hand_cards_mag.AoperatorUi")
+local SecondTimerUi = import(".SecondTimerUi")
 local ReadyStage = import("..control.ReadyStage")
 local DealingStage = import("..control.DealingStage")
 local FightingStage = import("..control.FightingStage")
@@ -15,6 +16,7 @@ local SpriteRes = {
 }
 
 function MjPlayingUi:ctor()
+	self:setNodeEventEnabled(true)
 	--data
 	GDataManager:getInstance():setLayer(self)
 	GDataManager:getInstance():reset()
@@ -33,6 +35,8 @@ function MjPlayingUi:ctor()
 end
 
 function MjPlayingUi:_setupUi()
+	GSound:getInstance():playMusic(MJBACKGOURNDMUSIC)
+
 	local background = cc.ui.UIImage.new(SpriteRes.background)
 	background:addTo(self)
 	background:setLayoutSize(display.width, display.height)
@@ -51,6 +55,7 @@ function MjPlayingUi:_setupUi()
 	self._dealingStage = DealingStage.new(self)
 	self._fightingState = FightingStage.new(self)
 	self._operatorUi = AoperatorUi.new(self)
+	self._secondTimerUi = SecondTimerUi.new(self)
 end
 
 function MjPlayingUi:_connectObserver()
@@ -59,6 +64,12 @@ end
 
 function MjPlayingUi:_unConnectObserver()
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterFighting, self)
+end
+
+function MjPlayingUi:onExit()
+	self:_unConnectObserver()
+	self:timerEnd()
+	GSound:getInstance():stopMusics()
 end
 
 function MjPlayingUi:start()
@@ -77,6 +88,14 @@ end
 
 function MjPlayingUi:hideOperatorUi()
 	self._operatorUi:hide()
+end
+
+function MjPlayingUi:timerBegan()
+	self._secondTimerUi:start()
+end
+
+function MjPlayingUi:timerEnd()
+	self._secondTimerUi:stop()
 end
 
 --==========================================================

@@ -1,3 +1,4 @@
+local SecondTimer = require("app.game.ui.modules.SecondTimer")
 local RobotManager = class("RobotManager")
 
 local this = nil
@@ -13,11 +14,25 @@ function RobotManager:ctor(layer, seat)
 	this = layer
 	self._seat = seat
 
+	self._thinkTime = SecondTimer.new()
+
 	self._recordAction = 0  -- 记录可做的操作是什么
 end
 
+--ai思考时间(延缓一个动作)
+function RobotManager:_start(listener)
+	local params = {
+		time = 1,
+		total_seconds = 2,
+		end_listener = listener
+	}
+	self._thinkTime:start(params)
+end
+
 function RobotManager:waitPlayCard(card)
-	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
+	--self:_start(function() 
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
+		--end)
 end
 
 --todo:  在做检测的时候就自动出牌了
@@ -49,6 +64,7 @@ function RobotManager:doAction()
 	}
 	if listeners[self._recordAction] then
 		listeners[self._recordAction]()
+		GDataManager:getInstance():removeActionSeat(self._seat)
 	end
 end
 

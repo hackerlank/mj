@@ -27,8 +27,11 @@ function PlayerManager:checkPeng(ret)
 	end
 end
 
-function PlayerManager:checkHu()
-
+function PlayerManager:checkHu(ret, index)
+	--index 1: 自摸 2:胡
+	if ret then
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kHu, index)
+	end
 end
 
 function PlayerManager:doAction()

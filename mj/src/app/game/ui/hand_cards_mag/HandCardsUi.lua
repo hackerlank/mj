@@ -87,9 +87,8 @@ function HandCardsUi:mineFeelCard()
 	--检测 暗杠、自摸
 	self:_setPramsByKey()  --找出杠子等牌,检测杠
 	self._manager:checkDarkGang(self:_checkDarkGang()) --检测暗杠
+	self._manager:checkHu(self._huCheck:checkHu(), 1) --检测暗杠
 	self._manager:waitPlayCard(card)
-	--
-	-- local isHu = self._huCheck:checkHu()
 end
 
 
@@ -100,7 +99,8 @@ function HandCardsUi:otherPlayCard(card)
 	self._manager:checkGang(isGang)
 	local isPeng = self:_checkPeng(card)
 	self._manager:checkPeng(isPeng)
-
+	local isHu = self._huCheck:checkHu(card)
+	self._manager:checkHu(isHu)
 	local fighting_type = nil
 	if isHu then
 		fighting_type = mjFighintInfoType.hu
@@ -110,7 +110,7 @@ function HandCardsUi:otherPlayCard(card)
 		fighting_type = mjFighintInfoType.peng
 	end
 	GDataManager:getInstance():setFighingInfo(self._seat, fighting_type)
-	-- local isHu = self._huCheck:checkHu()
+	
 	-- if not isPeng and not isGang and not isHu then
 	-- 	table.remove(self._darkCards, #self._darkCards)
 	-- 	return true
@@ -282,6 +282,10 @@ end
 
 function HandCardsUi:getManager()
 	return self._manager
+end
+
+function HandCardsUi:getHuCheck()
+	return self._huCheck
 end
 
 return HandCardsUi

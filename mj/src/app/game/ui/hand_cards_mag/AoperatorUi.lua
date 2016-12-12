@@ -32,6 +32,7 @@ function AoperatorUi:ctor(layer)
 
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kMineGang, self, handler(self, self._checkGangResult))
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kPeng, self, handler(self, self._checkPengResult))
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kHu, self, handler(self, self._checkHuResult))
 end
 
 function AoperatorUi:destroy()
@@ -59,11 +60,25 @@ function AoperatorUi:_checkPengResult(ret)
 	end
 end
 
+function AoperatorUi:_checkHuResult(index)
+	self:_showOperatorUi()
+	self:setButtonEnable(3)
+	if index == 1 then
+		--自摸
+		
+	else
+
+	end
+end
+
 --===================================
 
 function AoperatorUi:_resetButtonsEnable()
 	for _id,button in pairs(self._buttons) do
 		button:setButtonEnabled(false)
+		if _id == #self._buttons then
+			button:setButtonEnabled(true)
+		end
 	end
 end
 
@@ -93,7 +108,7 @@ end
 
 function AoperatorUi:_actionXClickListener()
 	self:hide()
-	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kXGuo)
+	GDataManager:getInstance():removeActionSeat(1)  --放弃操作,超时视为放弃操作
 end
 
 return AoperatorUi

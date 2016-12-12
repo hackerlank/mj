@@ -80,7 +80,7 @@ end
 --[[
 	打出手牌位置
 ]]
-local kPlayerCardNum = 12
+local kPlayerCardNum = 7
 function HandCardPos:setPlayCardPos(card)
 	local seat = self._handCard:getSeat()
 	if seat == 1 then

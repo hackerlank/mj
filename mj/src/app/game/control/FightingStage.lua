@@ -15,6 +15,10 @@ end
 
 function FightingStage:getActiveSeatUp()
 	this:hideOperatorUi()
+	this:timerBegan()
+	for _,_seat in pairs(self._seats) do
+		this:getHandCardsBySeat(_seat):getHuCheck():resetHu()
+	end
 	local seat = self:_getActivitySeat()
 	GDataManager:getInstance():setCurrentSeat(seat)
 	print("----------------------当前活动玩家", seat)
@@ -59,34 +63,19 @@ function FightingStage:_playCardSuccess(card)
 		end
 	end
 	
-	local operate_seats = GDataManager:getInstance():checkSortFightInfo()
+	GDataManager:getInstance():checkSortFightInfo()  --找出有效的序列
+	local actionSeats = GDataManager:getInstance():getActionSeats()
 	if operate_seats and #operate_seats > 0 then
-		--有 胡、杠或碰 需等待执行
-		print("_____________进入操作等待___________________")
-		this:getHandCardsBySeat(operate_seats[1]):getManager():doAction()  --ai直接执行了？
-		--GDataManager:getInstance():resetSortFightInfo(true)  等待未执行 进入下一轮
 		--AI会有自己的响应机制 如果超时，则肯定是玩家未操作，按过处理
-		--
+		for _,seat in pairs(actionSeats) do
+			if seat ~= 1 then
+				this:getHandCardsBySeat(seat):getManager():doAction()  --AI直接尝试直接操作
+			end
+		end
 	else
 		--直接进入下一个
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 	end
-
-	
-	-- self._parent:getHandCardsBySeat(data.seat):playSuccess(data.card)
-	-- local ret = false
-	-- for _,_seat in pairs(self._parent:getSeats()) do
-	-- 	if _seat ~= data.seat then
-	-- 		--其他人上牌 檢測
-	-- 		if self._parent:getHandCardsBySeat(_seat):upCard(2, data.card) then
-	-- 			ret = true
-	-- 		end
-	-- 	end
-	-- end
-	-- print("_-----------------ret------------", ret)
-	-- if not ret then
-	-- 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
-	-- end
 end
 
 function FightingStage:_getNextSeatActive()
