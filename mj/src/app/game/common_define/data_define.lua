@@ -81,6 +81,14 @@ mjPlayPositions = {
 	[4] = cc.p(display.cx - 150, display.cy + 120),
 }
 
+--胡牌起始未知
+mjHuCardPositions = {
+	[1] = cc.p(display.width - 200, display.cy - 200),
+	[2] = cc.p(display.width - 50, 100),
+	[3] = cc.p(display.width - 50, display.height-50),
+	[4] = cc.p(50, display.height - 50)
+}
+
 --头像（时钟位置）
 mjPlayerPositions = {
 	[1] = cc.p(0, 50),  --本家手牌的位置

@@ -25,13 +25,9 @@ function GDataManager:ctor()
 	self._isGangSeat = {}
 	self._isPengSeat = {}
 	--能够生效的操作序列
-	self._actionSeats = nil
-
-	self._needWaitList = {}  --需要等待的座位列表[只有这些玩家都操作了，才可做最后的判定]
-	--[[
-		--每次出牌清空
-		{seat = 1, value = mjFighintInfoType.hu}
-	]]
+	self._actionSeats = {}
+	self._isPlayState = true  --可出牌，操作序列和正常流程起冲突的饿时候
+	self._minePlayState = mjFighintInfoType.common  --记得重置
 end
 
 function GDataManager:setLayer(layer)
@@ -76,6 +72,16 @@ function GDataManager:checkSortFightInfo() --out seat
 		self._actionSeats = self._isGangSeat
 	end
 	self._actionSeats = self._isPengSeat
+
+	self:_checkActionSeats()
+	return self._actionSeats
+end
+
+--每次出牌只有一个地方检测，没有人操作或无可操作，继续
+function GDataManager:_checkActionSeats()
+	if #self._actionSeats == 0 then
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
+	end
 end
 
 function GDataManager:removeActionSeat(seat)
@@ -84,13 +90,9 @@ function GDataManager:removeActionSeat(seat)
 			table.remove(self._actionSeats, _)
 		end
 	end
-	if #self._actionSeats == 0 then
-		--继续
-		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
-	end
 end
 
---过牌响应机制 
+--过牌响应
 --[[
 	1. 如果多家胡牌， 则都需要等待， 操作列表
 	2. 有胡牌， 胡牌之外的都属于， 失效操作
@@ -102,7 +104,7 @@ function GDataManager:resetSortFightInfo(ret)
 	self._isHuSeat = {}
 	self._isGangSeat = {}
 	self._isPengSeat = {}
-	self._actionSeats = nil
+	self._actionSeats = {}
 	if ret then
 		this:getHandCardsBySeat(self._currentPos):getHandCardPos():subPlayCardNum()
 	end
@@ -123,6 +125,26 @@ end
 
 function GDataManager:getActionSeats()
 	return self._actionSeats
+end
+
+function GDataManager:getIsPlayState()
+	return self._isPlayState
+end
+
+function GDataManager:setIsPlayState(ret)
+	self._isPlayState = ret
+end
+
+function GDataManager:minePlayStateNotCommon()
+	return self._minePlayState == mjFighintInfoType.common
+end
+
+function GDataManager:setMinePlayState(state)
+	self._minePlayState = state
+end
+
+function GDataManager:resetMinePlayState()
+	self._minePlayState = mjFighintInfoType.common  --记得重置
 end
 
 return GDataManager

@@ -1,5 +1,19 @@
 ww = ww or {}
 
+ww.DEBUG = false
+
+function ww.print(fmt, ...)
+    if ww.DEBUG then
+        print(fmt, ...)
+    end
+end
+
+function ww.printFormat(fmt, ...)
+    if ww.DEBUG then
+        print(string.format(fmt, ...))
+    end
+end
+
 function ww.createShieldTouchLayer(parent_node, touch_listener, alpha)
     local layer = display.newColorLayer(cc.c4b(0, 0, 0, alpha or 125))
     layer:setTouchEnabled(true)

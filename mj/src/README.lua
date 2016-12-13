@@ -43,4 +43,10 @@ HandCardUi = {
 		2.检测出其中有效的操作，放入等待操作列表
 		3.当所有有效操作结束后，则顺序执行
 	}
+
+	--冲突：
+	1. 可操作序列和正常出牌流程 nextactiveseat 
+	【解决】DataManager中加入 判断是否可正常出牌的参数，_isPlayState 进行限制
+	2. 本家可操作，需要出牌完成后才执行正常步奏 nextactivityseat
+	【解决】需要引入参数标记本家的当前状态 GameEnum.mjFighintInfoType
 ]]

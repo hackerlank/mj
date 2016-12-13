@@ -31,6 +31,7 @@ function HandCardsUi:ctor(layer)
 	self._seat = 0  --初始化的玩家
 	self._darkCards = {}  --暗牌
 	self._showCards = {}  --明牌|碰
+	self._huCards = {}  --胡牌里列表
 
 	--每次手牌变动都要更新
 	self._jiang = {}
@@ -87,7 +88,7 @@ function HandCardsUi:mineFeelCard()
 	--检测 暗杠、自摸
 	self:_setPramsByKey()  --找出杠子等牌,检测杠
 	self._manager:checkDarkGang(self:_checkDarkGang()) --检测暗杠
-	self._manager:checkHu(self._huCheck:checkHu(), 1) --检测暗杠
+	self._manager:checkHu(self._huCheck:checkHu(), 1, card) --检测暗杠
 	self._manager:waitPlayCard(card)
 end
 
@@ -100,7 +101,7 @@ function HandCardsUi:otherPlayCard(card)
 	local isPeng = self:_checkPeng(card)
 	self._manager:checkPeng(isPeng)
 	local isHu = self._huCheck:checkHu(card)
-	self._manager:checkHu(isHu)
+	self._manager:checkHu(isHu, 2, card)
 	local fighting_type = nil
 	if isHu then
 		fighting_type = mjFighintInfoType.hu
@@ -110,12 +111,6 @@ function HandCardsUi:otherPlayCard(card)
 		fighting_type = mjFighintInfoType.peng
 	end
 	GDataManager:getInstance():setFighingInfo(self._seat, fighting_type)
-	
-	-- if not isPeng and not isGang and not isHu then
-	-- 	table.remove(self._darkCards, #self._darkCards)
-	-- 	return true
-	-- end
-
 end
 
 --===============================================
@@ -223,6 +218,11 @@ function HandCardsUi:doPeng()
 	end
 end
 --===========================================================================
+--胡牌列表
+function HandCardsUi:insertHuCard(card)
+	table.insert(self._huCards, #self._huCards+1, card)
+	self._handCardPos:huCardsPositions(card)
+end
 
 --分割手牌
 function HandCardsUi:_setPramsByKey()
@@ -286,6 +286,10 @@ end
 
 function HandCardsUi:getHuCheck()
 	return self._huCheck
+end
+
+function HandCardsUi:getHuCards()
+	return self._huCards
 end
 
 return HandCardsUi

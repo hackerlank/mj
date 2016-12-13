@@ -43,7 +43,7 @@ end
 
 function HuCheck:checkHu(card)
 	self._jiang = {}
-	local dark_list = clone(self._handCards:getDarkList())  --全都由克隆的作为检测
+	local dark_list = clone(self._handCards:getDarkList())  --全都由克隆数据作为检测
 	if card then
 		--他人上牌
 		table.insert(dark_list, #dark_list+1, card)
@@ -108,7 +108,7 @@ end
 function HuCheck:AnalyZe(dark_list_clone)
 	local dark_list = clone(dark_list_clone)
 	local tmp_value = nil
-	dumpCardList(dark_list)
+	--dumpCardList(dark_list)
 
 	for id,val in pairs(self._pai) do
 		if id <= #self._pai - 2 then
@@ -136,7 +136,7 @@ function HuCheck:AnalyZe(dark_list_clone)
 					table.remove(self._pai[id], 1)
 					table.remove(self._pai[id+1], 1)
 					table.remove(self._pai[id+2], 1)
-					dumpCardList(dark_list)
+					--dumpCardList(dark_list)
 					self:AnalyZe(dark_list)
 					return 
 				end 
@@ -144,7 +144,7 @@ function HuCheck:AnalyZe(dark_list_clone)
 		end
 	end
 	if #dark_list == 0 then
-		print("#成啦#")
+		ww.print("#成啦#", self._handCards:getSeat())
 		self._isHu = true
 	end
 end

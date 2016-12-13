@@ -18,6 +18,7 @@ mjNoDCardType = {
 
 --胡牌优先级确定
 mjFighintInfoType = {
+	common = 0,
 	hu = 3,
 	gang = 2,
 	peng = 1

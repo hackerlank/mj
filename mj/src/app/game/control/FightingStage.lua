@@ -21,7 +21,7 @@ function FightingStage:getActiveSeatUp()
 	end
 	local seat = self:_getActivitySeat()
 	GDataManager:getInstance():setCurrentSeat(seat)
-	print("----------------------当前活动玩家", seat)
+	ww.print("----------------------当前活动玩家", seat)
 	this:getHandCardsBySeat(seat):mineFeelCard(1)
 end
 
@@ -49,7 +49,7 @@ function FightingStage:updateSeatIndex(seat_pos)
 end
 
 function FightingStage:_playCardSuccess(card)
-	print("打出成功;座位号--", card:getSeat())
+	ww.print("打出成功;座位号--", card:getSeat())
 	--1. 该座位玩家成功打出
 	--2. 其他三位玩家根据优先级检测 胡(并列)>杠>碰 (所有响应)
 	--3. 检测到则等待 。。。
@@ -63,18 +63,23 @@ function FightingStage:_playCardSuccess(card)
 		end
 	end
 	
-	GDataManager:getInstance():checkSortFightInfo()  --找出有效的序列
-	local actionSeats = GDataManager:getInstance():getActionSeats()
-	if operate_seats and #operate_seats > 0 then
+	local actionSeats = GDataManager:getInstance():checkSortFightInfo()  --找出有效的序列
+	if actionSeats and #actionSeats > 0 then
 		--AI会有自己的响应机制 如果超时，则肯定是玩家未操作，按过处理
-		for _,seat in pairs(actionSeats) do
-			if seat ~= 1 then
-				this:getHandCardsBySeat(seat):getManager():doAction()  --AI直接尝试直接操作
+		dump(actionSeats)
+		for _,_seat in pairs(actionSeats) do
+			if _seat ~= 1 then
+				this:getHandCardsBySeat(_seat):getManager():doAction()  --AI直接尝试直接操作
 			end
 		end
-	else
-		--直接进入下一个
-		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
+	end
+
+	GDataManager:getInstance():resetSortFightInfo(false)
+
+	local minePlayNotComon = GDataManager:getInstance():minePlayStateNotCommon()  --本家是否在其他状态
+	if not minePlayNotComon then
+		GDataManager:getInstance():removeActionSeat(1)
+		GDataManager:getInstance():resetMinePlayState()
 	end
 end
 

@@ -23,16 +23,17 @@ end
 function RobotManager:_start(listener)
 	local params = {
 		time = 1,
-		total_seconds = 2,
+		total_seconds = 1,
 		end_listener = listener
 	}
 	self._thinkTime:start(params)
 end
 
 function RobotManager:waitPlayCard(card)
-	--self:_start(function() 
+	self:_start(function() 
+		--print("___________________出牌1")
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
-		--end)
+		end)
 end
 
 --todo:  在做检测的时候就自动出牌了
@@ -64,6 +65,8 @@ function RobotManager:doAction()
 	}
 	if listeners[self._recordAction] then
 		listeners[self._recordAction]()
+		self._recordAction = nil
+		ww.printFormat("-----ai%d操作了-----", self._seat)
 		GDataManager:getInstance():removeActionSeat(self._seat)
 	end
 end
@@ -81,8 +84,10 @@ end
 
 function RobotManager:_doPeng()
 	this:getHandCardsBySeat(self._seat):doPeng()
-	local card = this:getHandCardsBySeat(self._seat):getDarkList()[1]
-	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
+	local cards = this:getHandCardsBySeat(self._seat):getCardWall()
+	--print("___________________出牌2")
+	print("----card_name----", cards[1]:getName())
+	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, cards[1])
 end
 
 function RobotManager:checkHu()

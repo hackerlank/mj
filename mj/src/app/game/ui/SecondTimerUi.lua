@@ -14,7 +14,7 @@ function SecondTimerUi:start()
 	local params = {
 		time = 1,
 		total_seconds = 30,
-		times_listener = function(dt) print("时间..", dt) end
+		times_listener = function(dt) ww.print("时间..", dt) end
 	}
 	self.m_second_timer:start(params)
 end
