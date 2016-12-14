@@ -3,8 +3,8 @@ UIChangeObserver = require("app.game.UIObservers.UIChangeObserver")
 MjDataControl = require("app.game.control.MjDataControl")
 GDataManager = require("app.game.control.GDataManager")
 --ui
-local HandCardsUi = import(".hand_cards_mag.HandCardsUi")
-local AoperatorUi = import(".hand_cards_mag.AoperatorUi")
+local CardWallUi = import(".modules.CardWallUi")
+local AoperatorUi = import(".AoperatorUi")
 local SecondTimerUi = import(".SecondTimerUi")
 local ReadyStage = import("..control.ReadyStage")
 local DealingStage = import("..control.DealingStage")
@@ -48,7 +48,7 @@ function MjPlayingUi:_setupUi()
 
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
-		self._HandCards[seat] = HandCardsUi.new(self)
+		self._HandCards[seat] = CardWallUi.new(self)
 	end
 
 	self._readyStage = ReadyStage.new(self)

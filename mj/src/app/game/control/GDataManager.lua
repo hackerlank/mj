@@ -18,7 +18,7 @@ end
 
 local this = nil
 
-function GDataManager:ctor()
+function GDataManager:ctor()	
 	self._figingInfo = {}   --胡牌优先级信息
 	--都是暂时存放可相应的序列
 	self._isHuSeat = {}   --可能多个 1炮多响
@@ -26,87 +26,90 @@ function GDataManager:ctor()
 	self._isPengSeat = {}
 	--能够生效的操作序列
 	self._actionSeats = {}
-	self._isPlayState = true  --可出牌，操作序列和正常流程起冲突的饿时候
-	self._minePlayState = mjFighintInfoType.common  --记得重置
-end
-
-function GDataManager:setLayer(layer)
-	this = layer
 end
 
 function GDataManager:reset()
 	self._currentPos = 0 --当前活动玩家
 	self._seats = {1, 2, 3, 4}
 
+	self._actions = {}  --操作序列(有人出牌，其他三家做检测)
+	self._actionNum = 0
+	self._mineHasAction = false  --他人出牌时，自己是否有相应操作（碰，杠, 胡）
 end
 
---检测所有的有效操作
-function GDataManager:setFighingInfo(seat, value)
-	self._figingInfo[seat] = value
-	if value == mjFighintInfoType.hu then
-		table.insert(self._isHuSeat, #self._isHuSeat+1, seat)
-	elseif value == mjFighintInfoType.gang then
-		table.insert(self._isGangSeat, #self._isGangSeat+1, seat)
-	elseif value == mjFighintInfoType.peng then
-		table.insert(self._isPengSeat, #self._isPengSeat+1, seat)
+function GDataManager:setLayer(layer)
+	this = layer
+end
+
+--每家只能有一个操作
+function GDataManager:addAction(seat, value)
+	self._actions[seat] = value
+end
+
+--优先级：胡>杠>碰  “胡”会有多项
+function GDataManager:checkEffectiveAction()
+	local isHu = false
+	local isGang = false
+	local isPeng = false
+	for seat,val in pairs(self._actions) do
+		if val == mjFighintInfoType.hu then
+			isHu = true
+		elseif val == mjFighintInfoType.gang then
+			isGang = true
+		elseif val == mjFighintInfoType.peng then
+			isPeng = true
+		end
 	end
-end
-
---按 胡>杠>碰 优先级找出有效序列
-function GDataManager:checkSortFightInfo() --out seat
-	if #self._isHuSeat > 0 then
-		for seat, value in pairs(self._figingInfo) do
-			if value ~= mjFighintInfoType.hu then
-				this:getHandCardsBySeat(seat):resetGang()
-				this:getHandCardsBySeat(seat):retsetPeng()
+	if isHu then
+		--有胡  其他的全部失效
+		for seat,val in pairs(self._actions) do
+			if val ~= mjFighintInfoType.hu then
+				val = nil
 			end
 		end
-		self._actionSeats = self._isHuSeat
+		self._actionNum = #self._actions
+		return self._actions
 	end
-	if #self._isGangSeat > 0 then
-		for seat, value in pairs(self._figingInfo) do
-			if value ~= mjFighintInfoType.gang then
-				this:getHandCardsBySeat(seat):retsetPeng()
+	if isGang then
+		--没有胡 有杠 碰失效
+		for seat,val in pairs(self._actions) do
+			if val ~= mjFighintInfoType.gang then
+				val = nil
 			end
 		end
-		self._actionSeats = self._isGangSeat
+		self._actionNum = #self._actions
+		return self._actions
 	end
-	self._actionSeats = self._isPengSeat
 
-	self:_checkActionSeats()
-	return self._actionSeats
+	if isPeng then
+		self._actionNum = #self._actions
+		return self._actions
+	end
+
+	return false
 end
 
---每次出牌只有一个地方检测，没有人操作或无可操作，继续
-function GDataManager:_checkActionSeats()
-	if #self._actionSeats == 0 then
+--重置掉（这个时候动作已经产生）
+--如果都未响应的话（就视为过）
+function GDataManager:resetActions()
+	self._actions = {}
+end
+
+function GDataManager:responseAction()
+	self._actionNum = self._actionNum - 1
+	if self._actionNum == 0 then
+		--下一个
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 	end
 end
 
-function GDataManager:removeActionSeat(seat)
-	for _,_seat in pairs(self._actionSeats) do
-		if _seat == seat then
-			table.remove(self._actionSeats, _)
-		end
-	end
-end
-
---过牌响应
---[[
-	1. 如果多家胡牌， 则都需要等待， 操作列表
-	2. 有胡牌， 胡牌之外的都属于， 失效操作
-]]
-
-function GDataManager:resetSortFightInfo(ret)
-	--ret : 成功操作 还是 未操作进入下一轮
-	self._figingInfo = {}
-	self._isHuSeat = {}
-	self._isGangSeat = {}
-	self._isPengSeat = {}
-	self._actionSeats = {}
-	if ret then
-		this:getHandCardsBySeat(self._currentPos):getHandCardPos():subPlayCardNum()
+--本家响应 action 结束
+--注意：无效操作目前，界面上是不展示的，所以只有自己选“过”的时候才调用这个执行下一步
+--若是选择了其他有效操作，则回走主循环
+function GDataManager:mineHasActionReponse()
+	if self._mineHasAction then
+		self:responseAction()
+		self._mineHasAction = false
 	end
 end
 
@@ -127,24 +130,12 @@ function GDataManager:getActionSeats()
 	return self._actionSeats
 end
 
-function GDataManager:getIsPlayState()
-	return self._isPlayState
+function GDataManager:getMineHasAction()
+	return self._mineHasAction
 end
 
-function GDataManager:setIsPlayState(ret)
-	self._isPlayState = ret
-end
-
-function GDataManager:minePlayStateNotCommon()
-	return self._minePlayState == mjFighintInfoType.common
-end
-
-function GDataManager:setMinePlayState(state)
-	self._minePlayState = state
-end
-
-function GDataManager:resetMinePlayState()
-	self._minePlayState = mjFighintInfoType.common  --记得重置
+function GDataManager:setMineHasAction(ret)
+	self._mineHasAction = ret
 end
 
 return GDataManager

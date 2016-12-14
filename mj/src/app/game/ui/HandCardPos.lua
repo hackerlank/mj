@@ -4,7 +4,9 @@
 ]]
 local HandCardPos = class("HandCardPos")
 
-function HandCardPos:ctor(hand_card)
+local this = nil
+function HandCardPos:ctor(layer, hand_card)
+	this = layer
 	self._handCard = hand_card  --手牌类
 
 	--=============未手持， 碰、杠、暗杠的牌位置展示
@@ -27,27 +29,47 @@ end
 --[[
 	首先对暗牌进行排序和位置设定
 ]]
-
-function HandCardPos:sortDarkCards()
+--仅仅只是偏移量
+local kDarkUpCardP = {
+	[1] = 20,
+	[2] = 10,
+	[3] = 20,
+	[4] = 10
+}
+--ret : 控制是否最后一张 隔开（上牌、碰）的时候可使用
+function HandCardPos:sortDarkCards(ret)
 	local seat = self._handCard:getSeat()
-	local cards = self._handCard:getCardWall()
+	local cards = self._handCard:getDrakCards()
 	
-	local sortFunc = function(a,b) return a:getId() < b:getId() end
-	table.sort(cards, sortFunc)
+	if not ret then
+		--不排序啊， 摸到最后一张呢，害我
+		local sortFunc = function(a,b) return a:getId() < b:getId() end
+		table.sort(cards, sortFunc)
+	end
 
-	for _,card in pairs(cards) do
+	for id,card in pairs(cards) do
 		local beganPos = mjDarkPositions[seat]
 		card:setSeat(seat)
 		card:setCardType(mjDCardType.mj_dark)
-		card:setSortId(_)
+		-- if seat ~= 1 then
+		-- 	card:setCardType(mjDCardType.mj_play)
+		-- end
+		card:setSortId(id)
+		local function getDis(seat)
+			if id == #cards and ret then 
+			--最后一张是上的牌
+				return kDarkUpCardP[seat]
+			end
+			return 0
+		end
 		if seat == 1 then  --66*94
-			card:pos(beganPos.x + 66* _, beganPos.y)
+			card:pos(beganPos.x + 66* id + getDis(1), beganPos.y)
 		elseif seat == 2 then  --16*40
-			card:pos(beganPos.x, beganPos.y + 35* _)
+			card:pos(beganPos.x, beganPos.y + 35* id + getDis(2))
 		elseif seat == 3 then  --66* 94
-			card:pos(beganPos.x - 66* _, beganPos.y)
+			card:pos(beganPos.x - 66* id - getDis(3), beganPos.y)
 		else
-			card:pos(beganPos.x, beganPos.y - 35* _)
+			card:pos(beganPos.x, beganPos.y - 35* id - getDis(4))
 		end
 	end
 end
@@ -58,7 +80,7 @@ end
 
 function HandCardPos:setUpCardParams(card)
 	local seat = self._handCard:getSeat()
-	local cards = self._handCard:getCardWall()
+	local cards = self._handCard:getDrakCards()
 
 	local num = #cards + 1
 	local beganPos = mjDarkPositions[seat]
@@ -126,7 +148,7 @@ end
 --有杠牌 碰牌_showCards
 function HandCardPos:setShowCardPos()
 	--位置初始位置是手牌之后
-	local cards = self._handCard:getCardWall()
+	local cards = self._handCard:getDrakCards()
 	local card_lists = self._handCard:getShowCards()
 	local seat = self._handCard:getSeat()
 
@@ -154,6 +176,9 @@ function HandCardPos:_setShowCardsPosition(cards, card_list, seat)
 	local num = #list
 
 	for id,card in pairs(list) do
+		if card:getSeat() ~= seat then
+			this:getHandCardsBySeat(card:getSeat()):getHandCardPos():subPlayCardNum()  --这个调用很搞笑
+		end
 		card:setLocalZOrder(id)
 		card:setSeat(seat)
 		if type_ == mjNoDCardType.peng or type_ == mjNoDCardType.gang then
@@ -199,7 +224,13 @@ function HandCardPos:huCardsPositions(card)
 	local num = #self._handCard:getHuCards()
 	local seat = self._handCard:getSeat()
 	local began_pos = mjHuCardPositions[seat]
+
+	if card:getSeat() ~= seat then
+		this:getHandCardsBySeat(card:getSeat()):getHandCardPos():subPlayCardNum()  --这个调用很搞笑
+	end
 	if seat == 1 then
+		card:setSeat(1)
+		card:setCardType(mjDCardType.mj_play)
 		card:pos(began_pos.x + 33 * num, began_pos.y)
 	end
 end

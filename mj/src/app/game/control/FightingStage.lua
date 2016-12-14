@@ -16,9 +16,9 @@ end
 function FightingStage:getActiveSeatUp()
 	this:hideOperatorUi()
 	this:timerBegan()
-	for _,_seat in pairs(self._seats) do
-		this:getHandCardsBySeat(_seat):getHuCheck():resetHu()
-	end
+	-- for _,_seat in pairs(self._seats) do
+	-- 	this:getHandCardsBySeat(_seat):getHuCheck():resetHu()
+	-- end
 	local seat = self:_getActivitySeat()
 	GDataManager:getInstance():setCurrentSeat(seat)
 	ww.print("----------------------当前活动玩家", seat)
@@ -54,6 +54,7 @@ function FightingStage:_playCardSuccess(card)
 	--2. 其他三位玩家根据优先级检测 胡(并列)>杠>碰 (所有响应)
 	--3. 检测到则等待 。。。
 	--4. 未检测到 过
+	--GDataManager:getInstance():mineHasActionReponse()
 	for _,seat in pairs(GDataManager:getInstance():getSeats()) do
 		if seat == card:getSeat() then
 			card:setCardType(mjDCardType.mj_play)
@@ -63,24 +64,24 @@ function FightingStage:_playCardSuccess(card)
 		end
 	end
 	
-	local actionSeats = GDataManager:getInstance():checkSortFightInfo()  --找出有效的序列
-	if actionSeats and #actionSeats > 0 then
+	local actionSeats = GDataManager:getInstance():checkEffectiveAction()  --找出有效的序列
+	if actionSeats then
 		--AI会有自己的响应机制 如果超时，则肯定是玩家未操作，按过处理
-		dump(actionSeats)
-		for _,_seat in pairs(actionSeats) do
+		for _seat,val in pairs(actionSeats) do
 			if _seat ~= 1 then
 				this:getHandCardsBySeat(_seat):getManager():doAction()  --AI直接尝试直接操作
+				GDataManager:getInstance():responseAction()
+			else
+				GDataManager:getInstance():setMineHasAction(true)
 			end
 		end
+	else
+		--都未检测到具有操作，过牌
+		--注意：如果对应的操作，没有被执行，也视为过牌
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 	end
 
-	GDataManager:getInstance():resetSortFightInfo(false)
-
-	local minePlayNotComon = GDataManager:getInstance():minePlayStateNotCommon()  --本家是否在其他状态
-	if not minePlayNotComon then
-		GDataManager:getInstance():removeActionSeat(1)
-		GDataManager:getInstance():resetMinePlayState()
-	end
+	GDataManager:getInstance():resetActions()
 end
 
 function FightingStage:_getNextSeatActive()

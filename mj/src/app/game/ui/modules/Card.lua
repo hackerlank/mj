@@ -10,7 +10,6 @@ function Card:ctor()
 	self._sortId = 0  --在手牌中的位置
 	self._seat = 1    --属于哪个玩家
 	self._isMine = false  --
-	self._isDark = true  --暗牌
 
 	--self:setCardType(mjDCardType.mj_init)  --一开始所有的牌都是默认牌
 	self:addNodeEventListener(cc.NODE_TOUCH_EVENT, handler(self, self._darkCardTouchListener))
@@ -103,14 +102,6 @@ end
 function Card:setIsMine(ret)
 	self._isMine = ret
 	self:setTouchEnabled(ret)
-end
-
-function Card:getIsDark()
-	return self._isDark
-end
-
-function Card:setIsDark(ret)
-	self._isDark = ret
 end
 
 --======================================

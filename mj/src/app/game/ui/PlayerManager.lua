@@ -14,7 +14,13 @@ function PlayerManager:checkDarkGang(ret)
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kMineGang, mjDarkGang)
 	end
 end
-
+--碰杠
+function PlayerManager:checkMGang(ret)
+	if ret then
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kMineGang, mjMGang)
+	end
+end
+--直杠（杠他人的）
 function PlayerManager:checkGang(ret)
 	if ret then
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kMineGang, mjGang)
@@ -29,6 +35,7 @@ end
 
 function PlayerManager:checkHu(ret, index, card)
 	--index 1: 自摸 2:胡
+	print("-----胡牌------", index, card, ret)
 	if ret then
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kHu, {id = index, card = card})
 	end

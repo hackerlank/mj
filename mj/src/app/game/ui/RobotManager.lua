@@ -6,8 +6,9 @@ local this = nil
 local kActionEnum = {
 	hu = 1,
 	dgang = 2,
-	gang = 3,
-	peng = 4
+	mgang = 3,
+	gang = 4,
+	peng = 5
 }
 
 function RobotManager:ctor(layer, seat)
@@ -36,11 +37,22 @@ function RobotManager:waitPlayCard(card)
 		end)
 end
 
+--暗杠dgang 碰杠mgang 自摸是不需要延缓的
+
+
 --todo:  在做检测的时候就自动出牌了
 --检测到暗杠
 function RobotManager:checkDarkGang(ret)
 	if ret then
-		self._recordAction = kActionEnum.dgang
+		--self._recordAction = kActionEnum.dgang
+		self:_doDarkGang()
+	end
+end
+
+function RobotManager:checkMGang(ret)
+	if ret then
+		--self._recordAction = kActionEnum.mgang
+		self:_doMGang()
 	end
 end
 
@@ -56,24 +68,34 @@ function RobotManager:checkPeng(ret)
 	end
 end
 
---==================
+--==================暂缓执行
 function RobotManager:doAction()
 	local listeners = {
-		[kActionEnum.dgang] = handler(self, self._doDarkGang),
+		--[kActionEnum.dgang] = handler(self, self._doDarkGang),
+		--[kActionEnum.mgang] = handler(self, self._doMGang),
 		[kActionEnum.gang] = handler(self, self._doGang),
 		[kActionEnum.peng] = handler(self, self._doPeng)
 	}
-	if listeners[self._recordAction] then
-		listeners[self._recordAction]()
-		self._recordAction = nil
-		ww.printFormat("-----ai%d操作了-----", self._seat)
-		GDataManager:getInstance():removeActionSeat(self._seat)
-	end
+
+	self:_start(function() 
+		if listeners[self._recordAction] then
+			listeners[self._recordAction]()
+			self._recordAction = nil
+			ww.printFormat("-----ai%d操作了-----", self._seat)
+		end
+	end)
+	
 end
 
 function RobotManager:_doDarkGang()
-	local gangzi = this:getHandCardsBySeat(self._seat):getGangzi()  --所有杠子
-	this:getHandCardsBySeat(self._seat):doDarkGang(gangzi[1])
+	--local gangzi = this:getHandCardsBySeat(self._seat):getGangzi()  --所有杠子
+	--this:getHandCardsBySeat(self._seat):doDarkGang(gangzi[1])
+	this:getHandCardsBySeat(self._seat):doDarkGang()
+	this:getHandCardsBySeat(self._seat):mineFeelCard()  --再次上牌
+end
+
+function RobotManager:_doMGang()
+	this:getHandCardsBySeat(self._seat):doMGang()
 	this:getHandCardsBySeat(self._seat):mineFeelCard()  --再次上牌
 end
 
@@ -84,7 +106,7 @@ end
 
 function RobotManager:_doPeng()
 	this:getHandCardsBySeat(self._seat):doPeng()
-	local cards = this:getHandCardsBySeat(self._seat):getCardWall()
+	local cards = this:getHandCardsBySeat(self._seat):getDrakCards()
 	--print("___________________出牌2")
 	print("----card_name----", cards[1]:getName())
 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, cards[1])

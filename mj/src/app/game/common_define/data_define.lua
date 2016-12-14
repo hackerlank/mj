@@ -83,7 +83,7 @@ mjPlayPositions = {
 
 --胡牌起始未知
 mjHuCardPositions = {
-	[1] = cc.p(display.width - 200, display.cy - 200),
+	[1] = cc.p(display.cx + 100, 150),
 	[2] = cc.p(display.width - 50, 100),
 	[3] = cc.p(display.width - 50, display.height-50),
 	[4] = cc.p(50, display.height - 50)

@@ -6,11 +6,12 @@ function AoperatorUi:ctor(layer)
 	this = layer
 
 	self:addTo(this, mjLocalZorders.operate_ui)
-	self:pos(display.cx/3, 50)
+	self:pos(display.cx/3, 250)
 
 	self._buttons = {}
 	self._open = false
 	self._isDarkGang = false  --是否暗杠
+	self._huInfo = nil  --胡牌信息
 
 	local kButtons = {
 		[1] = {images = mjActionP, listener = handler(self, self._actionPClickListener)},
@@ -69,11 +70,7 @@ function AoperatorUi:_checkHuResult(data)
 	--id card
 	self:_showOperatorUi()
 	self:setButtonEnable(3)
-	if data.id == 1 then
-		--自摸
-	else
-	end
-	this:getHandCardsBySeat(1):insertHuCard(data.card)
+	self._huInfo = data
 end
 
 --===================================
@@ -102,14 +99,12 @@ end
 
 function AoperatorUi:_actionPClickListener()
 	GDataManager:getInstance():setCurrentSeat(1)
-	GDataManager:getInstance():setMinePlayState(mjFighintInfoType.peng)
 	self:_commonClickListener()
 	this:getHandCardsBySeat(1):doPeng()
 end
 
 function AoperatorUi:_actionGClickListener()
 	GDataManager:getInstance():setCurrentSeat(1)
-	GDataManager:getInstance():setMinePlayState(mjFighintInfoType.gang)
 	self:_commonClickListener()
 	if self._isDarkGang then
 		local gangzi = this:getHandCardsBySeat(1):getGangzi()  --所有杠子
@@ -121,17 +116,24 @@ function AoperatorUi:_actionGClickListener()
 end
 
 function AoperatorUi:_actionHClickListener()
-	GDataManager:getInstance():setMinePlayState(mjFighintInfoType.hu)
 	self:_commonClickListener()
+	if self._huInfo then
+		this:updateSeatIndex(1)
+		this:getHandCardsBySeat(1):insertHuCard(self._huInfo.card)
+		if self._huInfo.id == 2 then
+			GDataManager:getInstance():mineHasActionReponse()  --不需要出牌，所以减1
+		else
+			UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
+		end
+		self._huInfo = nil
+	end
 end
 
 function AoperatorUi:_actionXClickListener()
 	self:_commonClickListener()
+	GDataManager:getInstance():mineHasActionReponse()
 	--放弃操作,超时视为放弃操作
-	GDataManager:getInstance():removeActionSeat(1)
-	GDataManager:getInstance():_checkActionSeats()
 	--轮到本家出牌，且有对应杠、碰操作时， 没有过选项
-
 end
 
 return AoperatorUi

@@ -1,5 +1,6 @@
 mjDarkGang = 100
-mjGang = 101
+mjMGang = 101
+mjGang = 102
 
 mjCardType = {
 	mj_wan = 0,
@@ -11,9 +12,10 @@ mjCardType = {
 }
 
 mjNoDCardType = {
-	peng = 1,
-	dgang = 2,
-	gang = 3
+	peng = 1,	--碰
+	dgang = 2,  --暗杠
+	mgang = 3,  --碰杠
+	gang = 4    --明杠
 }
 
 --胡牌优先级确定

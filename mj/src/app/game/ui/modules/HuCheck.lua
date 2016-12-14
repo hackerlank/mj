@@ -6,6 +6,7 @@ function HuCheck:ctor(hand_cards)
 	self._jiang = {}
 	self._kezi  ={}
 	self._pai = {}
+	self._isHu = false
 end
 
 function HuCheck:_setPramsByKey(card_list)
@@ -34,7 +35,6 @@ function HuCheck:_setPramsByKey(card_list)
 			table.insert(self._jiang, #self._jiang+1, {val[3], val[4]})
 		end
 	end
-
 end
 
 --如果是自己上牌（直接检测是否自摸）
@@ -43,7 +43,7 @@ end
 
 function HuCheck:checkHu(card)
 	self._jiang = {}
-	local dark_list = clone(self._handCards:getDarkList())  --全都由克隆数据作为检测
+	local dark_list = clone(self._handCards:getDrakCards())  --全都由克隆数据作为检测
 	if card then
 		--他人上牌
 		table.insert(dark_list, #dark_list+1, card)
@@ -57,7 +57,9 @@ function HuCheck:checkHu(card)
 	-- end
 	--self:_setPramsByKey(dark_list)
 	self:_checkCustom(dark_list)
-	return self._isHu
+	local ret = self._isHu
+	self._isHu = false
+	return ret
 end
 
 local function removetb(gtb, tb)
