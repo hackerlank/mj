@@ -107,8 +107,6 @@ end
 function RobotManager:_doPeng()
 	this:getHandCardsBySeat(self._seat):doPeng()
 	local cards = this:getHandCardsBySeat(self._seat):getDrakCards()
-	--print("___________________出牌2")
-	print("----card_name----", cards[1]:getName())
 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, cards[1])
 end
 
