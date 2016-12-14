@@ -77,7 +77,7 @@ end
 function HuCheck:_checkCustom(dark_list)
 	if (#dark_list-2)%3 ~= 0 then
 		--不符合3 3 3 3 2牌数规则 不和(小相公)
-		print("error: file(HuCheck) 小相公")
+		ww.print("error: file(HuCheck) 小相公")
 		self._isHu = false
 	end
 	--必须有一对将牌 否则不和

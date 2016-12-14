@@ -6,6 +6,7 @@ function Card:ctor()
 	self._name = nil
 	self._type = nil  --条、筒、万
 	self._cardType = nil --牌形式
+	self._sound = nil  --目前不区分男女
 	--附加属性
 	self._sortId = 0  --在手牌中的位置
 	self._seat = 1    --属于哪个玩家
@@ -17,6 +18,7 @@ end
 
 function Card:changeId(id)
 	self._id = id
+	self._sound = string.format("sound/woman/%d.mp3", id)
 	--計算
 	self._name = mjCardTxt[self._id]
 	self._type = mjCardType[math.ceil(self._id/9)]
@@ -102,6 +104,10 @@ end
 function Card:setIsMine(ret)
 	self._isMine = ret
 	self:setTouchEnabled(ret)
+end
+
+function Card:getSound()
+	return self._sound
 end
 
 --======================================

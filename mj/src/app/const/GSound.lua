@@ -52,7 +52,8 @@ end
 --音效管理
 --播放音效--
 function GSound:playEffect(_file,_isCycle)
-    return AudioEngine.playEffect(_file, _isCycle)
+	print("------------------", _file)
+    return AudioEngine.playEffect(_file, _isCycle or false)
 end
 
 --根据音效id停止音效--

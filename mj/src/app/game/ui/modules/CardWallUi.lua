@@ -95,6 +95,10 @@ function CardWallUi:_removeCards(cards)
 	end
 end
 
+function CardWallUi:removeLastDrakCard()
+	table.remove(self._darkCards, #self._darkCards)
+end
+
 --[[
 	分有两种情况：1. 自己上牌 2. 他人出牌
 ]]
@@ -143,6 +147,7 @@ end
 
 --出牌成功
 function CardWallUi:playCardSuccess(card)
+	GSound:getInstance():playEffect(card:getSound())
 	self._handCardPos:setPlayCardPos(card)
 	table.remove(self._darkCards, card:getSortId())
 	self:_darkCardChange() --未加入插入动画
@@ -214,6 +219,7 @@ function CardWallUi:doPeng()
 		self._peng = nil
 
 		this:updateSeatIndex(self._seat)
+		GSound:getInstance():playEffect(mjSpecialEffect.woman.peng)
 	end
 end
 
@@ -225,6 +231,8 @@ function CardWallUi:doDarkGang()
 		})
 		self:_removeCards(self._gangzi[1])
 		self:_darkCardChange()
+
+		GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
 	end
 end
 
@@ -236,6 +244,8 @@ function CardWallUi:doMGang()
 				table.insert(self._showCards[id].value, #self._showCards[id].value+1, self._gang[4])
 				self:_darkCardChange()
 				self._gang = nil
+
+				GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
 			end
 		end
 	end
@@ -251,6 +261,8 @@ function CardWallUi:doGang()
 		self:_darkCardChange()
 
 		this:updateSeatIndex(self._seat)
+
+		GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
 	end
 end
 

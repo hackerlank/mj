@@ -35,7 +35,6 @@ end
 
 function PlayerManager:checkHu(ret, index, card)
 	--index 1: 自摸 2:胡
-	print("-----胡牌------", index, card, ret)
 	if ret then
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kHu, {id = index, card = card})
 	end

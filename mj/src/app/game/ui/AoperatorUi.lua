@@ -95,6 +95,7 @@ end
 --click listener
 function AoperatorUi:_commonClickListener()
 	self:hide()
+	self._open = false
 end
 
 function AoperatorUi:_actionPClickListener()
@@ -123,6 +124,8 @@ function AoperatorUi:_actionHClickListener()
 		if self._huInfo.id == 2 then
 			GDataManager:getInstance():mineHasActionReponse()  --不需要出牌，所以减1
 		else
+			--自摸
+			this:getHandCardsBySeat(1):removeLastDrakCard()
 			UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 		end
 		self._huInfo = nil
