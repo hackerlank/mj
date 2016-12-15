@@ -6,7 +6,8 @@
 local HandCardPos = import("..HandCardPos")
 local RobotManager = import("..RobotManager")
 local PlayerManager = import("..PlayerManager")
-local HuCheck = import(".HuCheck")
+--local HuCheck = import(".HuCheck")
+local CardCheckHu = import(".CardCheckHu")
 local CardWallUi = class("CardWallUi")
 
 local this = nil
@@ -27,7 +28,7 @@ function CardWallUi:ctor(layer)
 	self._gang = nil  --可杠列表
 
 	self._handCardPos = HandCardPos.new(this, self)
-	self._huCheck = HuCheck.new(self)
+	self._huCheck = CardCheckHu.new(self)
 end
 
 --初始化：发牌阶段上牌多张；开始过程上牌是一张一张的上的；所以只用于初始化发牌
@@ -135,12 +136,15 @@ function CardWallUi:otherPlayCard(card)
 	local isHu = self._huCheck:checkHu(card)
 	self._manager:checkHu(isHu, 2, card)
 	local fighting_type = nil
+	
+	if isPeng then
+		fighting_type = mjFighintInfoType.peng
+	end
+	if isGang then
+		fighting_type = mjFighintInfoType.gang
+	end
 	if isHu then
 		fighting_type = mjFighintInfoType.hu
-	elseif isGang then
-		fighting_type = mjFighintInfoType.gang
-	elseif isPeng then
-		fighting_type = mjFighintInfoType.peng
 	end
 	GDataManager:getInstance():addAction(self._seat, fighting_type)
 end
@@ -169,6 +173,7 @@ function CardWallUi:_checkMGang(card)
 	--检测明刻中是否能杠
 	self._gang = nil
 	local gang = nil
+	dump(self._kezi)
 	for _,cards in pairs(self._kezi) do
 		if cards[1]:getId() == card:getId() then
 			gang = clone(cards)
@@ -237,6 +242,7 @@ function CardWallUi:doDarkGang()
 end
 
 function CardWallUi:doMGang()
+	print(#self._gang)
 	if self._gang and #self._gang == 4 then
 		for id,cards in pairs(self._showCards) do
 			if cards[1]:getId() == self._gang[1]:getId() then
@@ -258,6 +264,7 @@ function CardWallUi:doGang()
 			value = clone(self._gang)
 			})
 		self:_removeCards(self._gang)
+		self._gang = nil
 		self:_darkCardChange()
 
 		this:updateSeatIndex(self._seat)

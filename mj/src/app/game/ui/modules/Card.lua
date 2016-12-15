@@ -21,7 +21,7 @@ function Card:changeId(id)
 	self._sound = string.format("sound/woman/%d.mp3", id)
 	--計算
 	self._name = mjCardTxt[self._id]
-	self._type = mjCardType[math.ceil(self._id/9)]
+	self._type = math.ceil(self._id/9)
 end
 
 function Card:setCardType(card_type)

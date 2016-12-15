@@ -3,12 +3,12 @@ mjMGang = 101
 mjGang = 102
 
 mjCardType = {
-	mj_wan = 0,
-	mj_bing = 1,
+	mj_wan = 1,
 	mj_tiao = 2,
-	mj_feng = 3,
-	mj_zfb = 4,
-	mj_hua = 5
+	mj_bing = 3,
+	mj_feng = 4,
+	mj_zfb = 5,
+	mj_hua = 6
 }
 
 mjNoDCardType = {
