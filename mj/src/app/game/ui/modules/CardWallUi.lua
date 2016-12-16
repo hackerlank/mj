@@ -15,6 +15,8 @@ function CardWallUi:ctor(layer)
 	this = layer
 
 	self._seat = 0
+	self._queType = nil  --定缺类型
+
 	self._darkCards = {}  --牌墙【暗牌】
 	self._showCards = {}  --明牌【碰、杠】
 	self._huCards = {}    --明牌【胡的牌】
@@ -37,22 +39,22 @@ function CardWallUi:addHandCards(seat, cards)
 	if seat == 1 then
 		self._manager = PlayerManager.new()
 	else
-		self._manager = RobotManager.new(this, seat)
+		self._manager = RobotManager.new(this, self)
 	end
 	for id,card in pairs(cards) do
 		card:setIsMine(seat == 1)
 		table.insert(self._darkCards, #self._darkCards+1, card)
 	end
 
-	self:_darkCardChange()
+	self:_darkCardChange(true)
 end
 
 --手牌有变化
-function CardWallUi:_darkCardChange(isG)
+function CardWallUi:_darkCardChange(is_sort, is_last)
 	--分割暗牌(找出 将、暗刻、暗杠)
 	self:_setPramsByKey() 
 	--对手牌进行排序
-	self._handCardPos:sortDarkCards(isG)
+	self._handCardPos:sortDarkCards(is_sort, is_last)
 	self._handCardPos:setShowCardPos()
 end
 
@@ -100,6 +102,17 @@ function CardWallUi:removeLastDrakCard()
 	table.remove(self._darkCards, #self._darkCards)
 end
 
+--定完缺 设置一遍
+function CardWallUi:updateCardWallQueInfo(que_type)
+	self._queType = que_type
+	for _,card in pairs(self._darkCards) do
+		if card:getType() == self._queType then
+			card:setIsQue(true)
+		end
+	end
+	self:_darkCardChange(true, true)
+end
+
 --[[
 	分有两种情况：1. 自己上牌 2. 他人出牌
 ]]
@@ -112,18 +125,22 @@ function CardWallUi:mineFeelCard()
 	card:setIsMine(self._seat == 1)
 	--类型设置成暗牌（frame）
 	card:setCardType(mjDCardType.mj_dark)
+
+	if self:_checkQue({card}) then
+		card:setIsQue(true)
+	end
 	--放在暗牌列表最后
 	card:setSortId(#self._darkCards+1)  
 	table.insert(self._darkCards, #self._darkCards+1, card)
 
-	self:_darkCardChange(true)
+	self:_darkCardChange(false, true)
 
 	--暗杠
 	self._manager:checkDarkGang(self:_checkDarkGang())
 	self._manager:checkMGang(self:_checkMGang(card))
-	self._manager:checkHu(self._huCheck:checkHu(), 1, card) --检测暗杠
+	self._manager:checkHu(self:_checkHu(), 1, card) --检测暗杠
 
-	self._manager:waitPlayCard(card)
+	self._manager:playCard(card)
 end
 
 function CardWallUi:otherPlayCard(card)
@@ -133,7 +150,7 @@ function CardWallUi:otherPlayCard(card)
 	self._manager:checkGang(isGang)
 	local isPeng = self:_checkPeng(card)
 	self._manager:checkPeng(isPeng)
-	local isHu = self._huCheck:checkHu(card)
+	local isHu = self:_checkHu(card)
 	self._manager:checkHu(isHu, 2, card)
 	local fighting_type = nil
 	
@@ -154,7 +171,7 @@ function CardWallUi:playCardSuccess(card)
 	GSound:getInstance():playEffect(card:getSound())
 	self._handCardPos:setPlayCardPos(card)
 	table.remove(self._darkCards, card:getSortId())
-	self:_darkCardChange() --未加入插入动画
+	self:_darkCardChange(true) --未加入插入动画
 end
 
 function CardWallUi:insertHuCard(card)
@@ -164,9 +181,39 @@ end
 
 --================================================
 --检测--
+function CardWallUi:_checkQue(list)
+	--检测通过的牌组中有没有缺牌
+	for _,card in pairs(list) do
+		if card:getType() == self._queType then
+			return card
+		end
+	end
+end
+
+--检测并找出手牌中的一张缺牌
+function CardWallUi:findDarkCardsByQue()
+	return self:_checkQue(self._darkCards)
+end
+
+function CardWallUi:_checkHu(card)
+	local ret = self._huCheck:checkHu(card)
+	if ret then
+		if self:_checkQue(self._darkCards) then
+			return false
+		end
+		return ret
+	end
+end
+
 function CardWallUi:_checkDarkGang()
 	--只检测手中的暗杠
-	return #self._gangzi > 0
+	local num = #self._gangzi
+	if num > 0 then
+		if self:_checkQue(self._gangzi) then
+			return false
+		end
+		return true
+	end
 end
 
 function CardWallUi:_checkMGang(card)
@@ -176,6 +223,10 @@ function CardWallUi:_checkMGang(card)
 	dump(self._kezi)
 	for _,cards in pairs(self._kezi) do
 		if cards[1]:getId() == card:getId() then
+			--检测通过
+			if self:_checkQue(cards) then
+				return false
+			end
 			gang = clone(cards)
 			table.insert(gang, #gang+1, card)
 			self._gang = gang
@@ -188,6 +239,9 @@ function CardWallUi:_checkGang(card)
 	local gang = nil
 	for _,cards in pairs(self._dkezi) do
 		if cards[1]:getId() == card:getId() then
+			if self:_checkQue(cards) then
+				return false
+			end
 			gang = clone(cards)
 			table.insert(gang, #gang+1, card)
 			self._gang = gang
@@ -201,6 +255,9 @@ function CardWallUi:_checkPeng(card)
 	local peng = {}
 	for _,cards in pairs(self._jiang) do
 		if cards[1]:getId() == card:getId() then
+			if self:_checkQue(cards) then
+				return false
+			end
 			--检测到可碰的牌， 放入可碰列表(只会有一个碰)
 			peng = clone(cards)
 			table.insert(peng, #peng+1, card)
@@ -220,7 +277,7 @@ function CardWallUi:doPeng()
 		--碰的这三张牌变为持有的铭刻
 		table.insert(self._kezi, #self._kezi+1, clone(self._peng))
 		self:_removeCards(self._peng)
-		self:_darkCardChange(true)
+		self:_darkCardChange(true, true)
 		self._peng = nil
 
 		this:updateSeatIndex(self._seat)
@@ -235,7 +292,7 @@ function CardWallUi:doDarkGang()
 			value = clone(self._gangzi[1])
 		})
 		self:_removeCards(self._gangzi[1])
-		self:_darkCardChange()
+		self:_darkCardChange(true)
 
 		GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
 	end
@@ -248,7 +305,7 @@ function CardWallUi:doMGang()
 			if cards[1]:getId() == self._gang[1]:getId() then
 				self._showCards[id].type = mjNoDCardType.gang
 				table.insert(self._showCards[id].value, #self._showCards[id].value+1, self._gang[4])
-				self:_darkCardChange()
+				self:_darkCardChange(true)
 				self._gang = nil
 
 				GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)

@@ -2,6 +2,12 @@ mjDarkGang = 100
 mjMGang = 101
 mjGang = 102
 
+mjGamgStage = {
+	dealing = 1,
+	que = 2,
+	fighting = 3,
+}
+
 mjCardType = {
 	mj_wan = 1,
 	mj_tiao = 2,
@@ -26,9 +32,10 @@ mjFighintInfoType = {
 	peng = 1
 }
 
---游戏场景
+--游戏场景层级
 mjLocalZorders = {
 	card = 30, 
+	common_tip = 200,
 	operate_ui = 200, --从100开始
 }
 

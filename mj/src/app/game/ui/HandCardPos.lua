@@ -37,13 +37,13 @@ local kDarkUpCardP = {
 	[4] = 10
 }
 --ret : 控制是否最后一张 隔开（上牌、碰）的时候可使用
-function HandCardPos:sortDarkCards(ret)
+function HandCardPos:sortDarkCards(is_sort, is_last)
 	local seat = self._handCard:getSeat()
 	local cards = self._handCard:getDrakCards()
 	
-	if not ret then
-		--不排序啊， 摸到最后一张呢，害我
-		local sortFunc = function(a,b) return a:getId() < b:getId() end
+	if is_sort then
+		--摸到牌的时候不能排序(只是刚上牌的时候)
+		local sortFunc = function(a,b) return a:getSortValue() < b:getSortValue() end
 		table.sort(cards, sortFunc)
 	end
 
@@ -56,7 +56,7 @@ function HandCardPos:sortDarkCards(ret)
 		-- end
 		card:setSortId(id)
 		local function getDis(seat)
-			if id == #cards and ret then 
+			if id == #cards and is_last then 
 			--最后一张是上的牌
 				return kDarkUpCardP[seat]
 			end

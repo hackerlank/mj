@@ -30,6 +30,7 @@ end
 
 function GDataManager:reset()
 	self._currentPos = 0 --当前活动玩家
+	self._queType = 0
 	self._seats = {1, 2, 3, 4}
 
 	self._actions = {}  --操作序列(有人出牌，其他三家做检测)
@@ -120,6 +121,14 @@ end
 
 function GDataManager:setCurrentSeat(seat)
 	self._currentPos = seat
+end
+
+function GDataManager:getQueType()
+	return self._queType
+end
+
+function GDataManager:setQueType(type)
+	self._queType = type
 end
 
 function GDataManager:getSeats()

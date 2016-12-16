@@ -8,6 +8,7 @@ local AoperatorUi = import(".AoperatorUi")
 local SecondTimerUi = import(".SecondTimerUi")
 local ReadyStage = import("..control.ReadyStage")
 local DealingStage = import("..control.DealingStage")
+local DingQueStage = import(".module_ui.DingQueStage")
 local FightingStage = import("..control.FightingStage")
 local MjPlayingUi = class("MjPlayingUi", function() return display.newLayer() end)
 
@@ -56,6 +57,7 @@ function MjPlayingUi:_setupUi()
 	self._fightingState = FightingStage.new(self)
 	self._operatorUi = AoperatorUi.new(self)
 	self._secondTimerUi = SecondTimerUi.new(self)
+	DingQueStage.new(self)
 end
 
 function MjPlayingUi:_connectObserver()

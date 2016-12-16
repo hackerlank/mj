@@ -4,7 +4,7 @@ function PlayerManager:ctor()
 
 end
 
-function PlayerManager:waitPlayCard(card)
+function PlayerManager:playCard(card)
 	--card 刚抓的牌
 end
 

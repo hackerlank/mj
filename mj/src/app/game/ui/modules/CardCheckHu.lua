@@ -24,7 +24,7 @@ local function dumpCardList(list)
 end
 
 function CardCheckHu:print(fmt, ...)
-    if self._handCards:getSeat() == 1 then
+    if self._handCards:getSeat() == 6 then
         print(fmt, ...)
     end
 end

@@ -11,9 +11,10 @@ local kActionEnum = {
 	peng = 5
 }
 
-function RobotManager:ctor(layer, seat)
+function RobotManager:ctor(layer, cardWall)
 	this = layer
-	self._seat = seat
+	self._cardWall = cardWall
+	self._seat = self._cardWall:getSeat()
 
 	self._thinkTime = SecondTimer.new()
 
@@ -28,13 +29,6 @@ function RobotManager:_start(listener)
 		end_listener = listener
 	}
 	self._thinkTime:start(params)
-end
-
-function RobotManager:waitPlayCard(card)
-	self:_start(function() 
-		--print("___________________出牌1")
-		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
-		end)
 end
 
 --暗杠dgang 碰杠mgang 自摸是不需要延缓的
@@ -80,7 +74,6 @@ function RobotManager:doAction()
 	self:_start(function() 
 		if listeners[self._recordAction] then
 			listeners[self._recordAction]()
-			self._recordAction = nil
 			ww.printFormat("-----ai%d操作了-----", self._seat)
 		end
 	end)
@@ -106,12 +99,55 @@ end
 
 function RobotManager:_doPeng()
 	this:getHandCardsBySeat(self._seat):doPeng()
-	local cards = this:getHandCardsBySeat(self._seat):getDrakCards()
-	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, cards[1])
+	self._recordAction = 0
+	self:playCard()
 end
 
 function RobotManager:checkHu()
 
+end
+
+--==========================================================
+
+--[[
+	1. 定缺（选择最少的一门：{
+		level 1: 相同则选择前一门
+		level 2: 相同或相差一张牌， 估算权值
+	}）
+
+	2.上牌
+	
+]]
+
+function RobotManager:playCard(card)
+	--card: 抓上来的手牌
+	if self._recordAction > 0 then
+		--有操作执行 跳过执行
+		return
+	end
+	--(碰牌的时候没有抓牌)
+	--1.检测杠抓上来的牌是不是缺牌, 是缺牌直接打出 
+	if card and card:getIsQue() then
+		--直接打出
+		self:_playCurrentCard(card)
+	end
+	--2.检测手牌由没有缺牌， 找到缺牌打出
+	local que_card = self._cardWall:findDarkCardsByQue()
+	if que_card then
+		self:_playCurrentCard(que_card)
+	end
+	--3.
+end
+
+function RobotManager:_playCurrentCard(card)
+	self:_start(function() 
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kPlayCard, card)
+	end)
+	
+end
+
+function RobotManager:_checkQueCard(card)
+	return card:getIsQue()
 end
 
 return RobotManager
