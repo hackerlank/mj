@@ -36,7 +36,7 @@ function MjPlayingUi:ctor()
 end
 
 function MjPlayingUi:_setupUi()
-	GSound:getInstance():playMusic(MJBACKGOURNDMUSIC)
+	--GSound:getInstance():playMusic(MJBACKGOURNDMUSIC)
 
 	local background = cc.ui.UIImage.new(SpriteRes.background)
 	background:addTo(self)

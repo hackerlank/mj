@@ -138,7 +138,7 @@ function CardWallUi:mineFeelCard()
 	--暗杠
 	self._manager:checkDarkGang(self:_checkDarkGang())
 	self._manager:checkMGang(self:_checkMGang(card))
-	self._manager:checkHu(self:_checkHu(), 1, card) --检测暗杠
+	self._manager:checkHu(self._huCheck:checkHu(), 1, card) --检测暗杠
 
 	self._manager:playCard(card)
 end
@@ -150,7 +150,7 @@ function CardWallUi:otherPlayCard(card)
 	self._manager:checkGang(isGang)
 	local isPeng = self:_checkPeng(card)
 	self._manager:checkPeng(isPeng)
-	local isHu = self:_checkHu(card)
+	local isHu = self._huCheck:checkHu(card)
 	self._manager:checkHu(isHu, 2, card)
 	local fighting_type = nil
 	
@@ -195,16 +195,6 @@ function CardWallUi:findDarkCardsByQue()
 	return self:_checkQue(self._darkCards)
 end
 
-function CardWallUi:_checkHu(card)
-	local ret = self._huCheck:checkHu(card)
-	if ret then
-		if self:_checkQue(self._darkCards) then
-			return false
-		end
-		return ret
-	end
-end
-
 function CardWallUi:_checkDarkGang()
 	--只检测手中的暗杠
 	local num = #self._gangzi
@@ -220,7 +210,6 @@ function CardWallUi:_checkMGang(card)
 	--检测明刻中是否能杠
 	self._gang = nil
 	local gang = nil
-	dump(self._kezi)
 	for _,cards in pairs(self._kezi) do
 		if cards[1]:getId() == card:getId() then
 			--检测通过
@@ -299,7 +288,6 @@ function CardWallUi:doDarkGang()
 end
 
 function CardWallUi:doMGang()
-	print(#self._gang)
 	if self._gang and #self._gang == 4 then
 		for id,cards in pairs(self._showCards) do
 			if cards[1]:getId() == self._gang[1]:getId() then

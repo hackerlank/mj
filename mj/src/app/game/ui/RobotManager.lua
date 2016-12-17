@@ -137,6 +137,8 @@ function RobotManager:playCard(card)
 		self:_playCurrentCard(que_card)
 	end
 	--3.
+	local card_list = self._cardWall:getDrakCards()
+	self:_playCurrentCard(card_list[1])
 end
 
 function RobotManager:_playCurrentCard(card)

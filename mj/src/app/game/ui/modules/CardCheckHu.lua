@@ -24,7 +24,7 @@ local function dumpCardList(list)
 end
 
 function CardCheckHu:print(fmt, ...)
-    if self._handCards:getSeat() == 6 then
+    if self._handCards:getSeat() == 1 then
         print(fmt, ...)
     end
 end
@@ -36,6 +36,9 @@ function CardCheckHu:checkHu(card)
 	if card then
 		--他人上牌
 		table.insert(dark_list, #dark_list+1, card)
+	end
+	if self._handCards:_checkQue(dark_list) then
+		return false
 	end
 	-- local tt = {4,5,6,9,9,16,16,16}
 	-- local tmp = {}
