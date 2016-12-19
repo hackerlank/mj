@@ -8,4 +8,6 @@ ListenerIds = {
 	kMineGang = "gang",  --自己上牌有杠
 	kPeng = "peng", 
 	kHu = "kHu",
+
+	kCardsNum = "cards_num",  --牌张剩余数
 }

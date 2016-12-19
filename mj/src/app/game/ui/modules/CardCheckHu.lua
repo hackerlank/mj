@@ -24,7 +24,7 @@ local function dumpCardList(list)
 end
 
 function CardCheckHu:print(fmt, ...)
-    if self._handCards:getSeat() == 1 then
+    if self._handCards:getSeat() == 6 then
         print(fmt, ...)
     end
 end
@@ -40,12 +40,13 @@ function CardCheckHu:checkHu(card)
 	if self._handCards:_checkQue(dark_list) then
 		return false
 	end
-	-- local tt = {4,5,6,9,9,16,16,16}
+	-- local tt = {19,19,21,22,23}
 	-- local tmp = {}
 	-- for _,val in pairs(tt) do
 	-- 	dark_list[_]:changeId(val)
 	-- 	table.insert(tmp, #tmp+1, dark_list[_])
 	-- end
+	-- self:_splitDarkCards(tmp)
 	self:_splitDarkCards(dark_list)
 	return self:_Win()
 end
@@ -107,7 +108,7 @@ function CardCheckHu:_Win()
 	for j = 1, 9 do
 		if self._cardAll[jiangPos][j] >= 2 then
 			self._cardAll[jiangPos][j] = self._cardAll[jiangPos][j] - 2
-			if self:_AnalyZe(self._cardAll[jiangPos], jiangPos == 3) then
+			if self:_AnalyZe(self._cardAll[jiangPos], jiangPos > 3) then
 				success = true
 			end
 			self:print("______________________第几次遍历__________________", j, success)
@@ -132,33 +133,32 @@ function CardCheckHu:_AnalyZe(aKindPai, ziPai)
 	end
 	--寻找第一牌
 	for j = 1, 9 do
-		ww.print("------------------------------------", ziPai, j)
 		if aKindPai[j] ~= 0 then
-		
-		local result = false
-		if aKindPai[j] >= 3 then
-			--self:print("---------------------------刻子---------")
-			--除去三张刻牌
-			aKindPai[j] = aKindPai[j] - 3
-			result = self:_AnalyZe(aKindPai, ziPai)
-			--还原三张牌
-			aKindPai[j] = aKindPai[j] + 3
-			return result
-		end
-		--座位顺牌
-		if not ziPai  and j < 8 and (aKindPai[j+1] > 0) and aKindPai[j+2] > 0 then
-			--self:print("------------------顺子------------------")
-			--除去三张牌
-			aKindPai[j] = aKindPai[j] - 1
-			aKindPai[j+1] = aKindPai[j+1] - 1
-			aKindPai[j+2] = aKindPai[j+2] - 1
-			result = self:_AnalyZe(aKindPai, ziPai)
-			self:print(result)
-			aKindPai[j] = aKindPai[j] + 1
-			aKindPai[j+1] = aKindPai[j+1] + 1
-			aKindPai[j+2] = aKindPai[j+2] + 1
-			return result
-		end
+			self:print("------------------------------------", ziPai, j)
+			local result = false
+			if aKindPai[j] >= 3 then
+				--self:print("---------------------------刻子---------")
+				--除去三张刻牌
+				aKindPai[j] = aKindPai[j] - 3
+				result = self:_AnalyZe(aKindPai, ziPai)
+				--还原三张牌
+				aKindPai[j] = aKindPai[j] + 3
+				return result
+			end
+			--座位顺牌
+			if not ziPai  and j < 8 and (aKindPai[j+1] > 0) and aKindPai[j+2] > 0 then
+				self:print("------------------顺子------------------")
+				--除去三张牌
+				aKindPai[j] = aKindPai[j] - 1
+				aKindPai[j+1] = aKindPai[j+1] - 1
+				aKindPai[j+2] = aKindPai[j+2] - 1
+				result = self:_AnalyZe(aKindPai, ziPai)
+				self:print(result)
+				aKindPai[j] = aKindPai[j] + 1
+				aKindPai[j+1] = aKindPai[j+1] + 1
+				aKindPai[j+2] = aKindPai[j+2] + 1
+				return result
+			end
 		end
 	end
 	return false

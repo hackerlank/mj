@@ -1,7 +1,6 @@
 --[[
 	準備阶段，这里是游戏刚开始的最初始阶段
 ]]
-local SurplusPosition = import(".SurplusPosition")
 local ReadyStage = class("ReadyStage")
 
 local this = nil
@@ -12,7 +11,6 @@ end
 --初始化所有准备数据
 function ReadyStage:began()
 	MjDataControl:getInstance():dataStart()  --初始化麻將數據（創建了麻將Ui）
-	self.m_surplusPos = SurplusPosition.new(this)
 end
 
 

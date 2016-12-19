@@ -1,3 +1,4 @@
+local SurplusPosition = import(".SurplusPosition")
 local DealingStage = class("DealingStage")
 
 local this = nil  --之后的this都表示父节点
@@ -9,7 +10,9 @@ end
 
 function DealingStage:began()
 	--計算 出莊家位置 1
-	MjDataControl:getInstance():setBeganSzNumber(1)
+	local surplus_pos = SurplusPosition.new(this)
+	surplus_pos:setSurplusCardsPosition(5)
+	MjDataControl:getInstance():setBeganSzNumber(5)
 	--發牌
 	--根据庄家位置定制一次发牌顺序
 	local seats = {}

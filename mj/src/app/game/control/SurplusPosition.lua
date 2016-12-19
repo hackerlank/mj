@@ -7,6 +7,7 @@ local SurplusPosition = class("SurplusPosition")
 --四川麻将 108张牌 
 --国际麻将 136 张
 local this = nil
+local vecs = {}
 function SurplusPosition:ctor(layer)
 	this = layer
 
@@ -21,6 +22,7 @@ function SurplusPosition:setupUi()
 	local disW = 370
 	local disH = 230
 	local cardArray = MjDataControl:getInstance():getMjArray()
+	local sz_number = MjDataControl:getInstance():getSZNumber()
 	if #cardArray == 108 then
 		vecs = {28,26,28,26}
 	elseif #cardArray == 136 then
@@ -32,9 +34,6 @@ function SurplusPosition:setupUi()
 	local pos4 = cc.p(display.cx-disW, display.cy+(vecs[4]-5)*mjCardBhH/4)
 	local posAr = {pos1, pos2, pos3, pos4}
 
-	local Type2Index = 60
-	local Type1Index = 60
-	local Type3Index = 60
 	local function getPos(id, type)
 		local x, y = posAr[type].x, posAr[type].y
 		if id % 2 == 0 then
@@ -50,7 +49,6 @@ function SurplusPosition:setupUi()
 				posAr[type].x = posAr[type].x - mjCardBsxW
 			elseif type == 2 then
 				posAr[type].y = posAr[type].y + mjCardBhH/2
-				Type2Index = Type2Index - 1
 			else
 				posAr[type].y = posAr[type].y - mjCardBhH
 			end
@@ -62,17 +60,15 @@ function SurplusPosition:setupUi()
 		if id <= vecs[1] then
 			card:setSeat(1)
 			card:setPosition(getPos(id, 1))
-			card:addTo(this, Type1Index)
-			Type1Index = Type1Index - 1
+			card:addTo(this)
 		elseif id <= (vecs[1]+vecs[2]) then
 			card:setSeat(2)
 			card:setPosition(getPos(id, 2))
-			card:addTo(this, Type2Index)
+			card:addTo(this)
 		elseif id <= (vecs[1]+vecs[2]+vecs[3]) then
 			card:setSeat(3)	
 			card:setPosition(getPos(id, 3))
-			card:addTo(this, Type3Index)
-			Type3Index = Type3Index - 1
+			card:addTo(this)
 		elseif id <= (vecs[1]+vecs[2]+vecs[3]+vecs[4]) then
 			card:setSeat(4)
 			card:setPosition(getPos(id, 4))
@@ -82,6 +78,87 @@ function SurplusPosition:setupUi()
 	end		
 end
 
+local function checkIdVec(card, id, x, y)
+	if id % 2 == 0 then
+		card:pos(X(card)+x, Y(card)+y)
+	end
+end
 
+local function NcheckIdVec(card, id, x, y)
+	if id % 2 ~= 0 then
+		card:pos(X(card)+x, Y(card)+y)
+	end
+end
+
+function SurplusPosition:setSurplusCardsPosition(sz_number)
+	if sz_number == 1 or sz_number == 4 or sz_number == 5 then
+		self:_updateCardsLocalZorder1()
+	else
+		self:_updateCardsLocalZorder()
+	end
+end
+
+function SurplusPosition:_updateCardsLocalZorder()
+	local cardArray = MjDataControl:getInstance():getMjArray()
+	local Type2Index = 60
+	local Type1Index = 1
+	local Type3Index = 1
+	local Type4Index = 10
+
+	local zoerder2 = 0
+	for id,card in pairs(cardArray) do
+		if id <= vecs[1] then
+			card:setLocalZOrder(Type1Index)
+			Type1Index = Type1Index + 1
+			checkIdVec(card, id, 0, 25)
+		elseif id <= (vecs[1]+vecs[2])then
+			if id%2 ~= 0 then
+				card:setLocalZOrder(Type2Index-1)
+			else
+				card:setLocalZOrder(Type2Index)
+				Type2Index = Type2Index - 2
+			end
+		elseif id <= (vecs[1]+vecs[2]+vecs[3]) then
+			card:setLocalZOrder(Type3Index)
+			Type3Index = Type3Index + 1
+			checkIdVec(card, id, 0, 25)
+		elseif id <= (vecs[1]+vecs[2]+vecs[3]+vecs[4]) then
+			card:setLocalZOrder(Type4Index)
+			Type4Index = Type4Index + 1
+		end
+	end
+end
+
+function SurplusPosition:_updateCardsLocalZorder1()
+	local cardArray = MjDataControl:getInstance():getMjArray()
+	local Type2Index = 60
+	local Type1Index = 60
+	local Type3Index = 60
+	local Type4Index = 10
+
+	local zoerder2 = 0
+	for id,card in pairs(cardArray) do
+		if id <= vecs[1] then
+			card:setLocalZOrder(Type1Index)
+			Type1Index = Type1Index - 1
+		elseif id <= (vecs[1]+vecs[2])then
+			card:setLocalZOrder(Type2Index)
+			Type2Index = Type2Index - 1
+			checkIdVec(card, id, 0, 27)
+		elseif id <= (vecs[1]+vecs[2]+vecs[3]) then
+			card:setLocalZOrder(Type3Index)
+			Type3Index = Type3Index - 1
+			checkIdVec(card, id, 0, -0)
+		elseif id <= (vecs[1]+vecs[2]+vecs[3]+vecs[4]) then
+			if id%2 == 0 then
+				card:setLocalZOrder(Type4Index-1)
+				Type4Index = Type4Index + 2
+			else
+				card:setLocalZOrder(Type4Index)
+			end
+			NcheckIdVec(card, id, 0, 20)
+		end
+	end
+end
 
 return SurplusPosition

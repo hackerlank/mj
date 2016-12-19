@@ -179,6 +179,7 @@ function HandCardPos:_setShowCardsPosition(cards, card_list, seat)
 		if card:getSeat() ~= seat then
 			this:getHandCardsBySeat(card:getSeat()):getHandCardPos():subPlayCardNum()  --这个调用很搞笑
 		end
+		card:setIsQue(false)
 		card:setLocalZOrder(id)
 		card:setSeat(seat)
 		if type_ == mjNoDCardType.peng or type_ == mjNoDCardType.gang then

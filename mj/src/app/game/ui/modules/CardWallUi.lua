@@ -119,6 +119,9 @@ end
 --自己上牌
 function CardWallUi:mineFeelCard()
 	--按顺序获取一张牌
+	if MjDataControl:getInstance():getGameOver() then
+		return 
+	end
 	local card= MjDataControl:getInstance():getCardMjArray(1)[1]  
 	--设置成改位置玩家手牌
 	card:setSeat(self._seat)

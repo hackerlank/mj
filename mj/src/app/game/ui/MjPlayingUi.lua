@@ -25,6 +25,7 @@ function MjPlayingUi:ctor()
 	--ui
 	self._HandCards = {}
 	self._operatorUi = nil
+	self._cardsNumLabel = nil  --牌张剩余数 监听
 	--object
 	self._readyStage = nil
 	self._dealingStage = nil
@@ -47,6 +48,10 @@ function MjPlayingUi:_setupUi()
 	:addTo(self)
 	:pos(display.cx, display.cy - 55)
 
+	self._cardsNumLabel = ww.createLabel("剩余: 108")
+	self._cardsNumLabel:addTo(self)
+	self._cardsNumLabel:align(display.CENTER, display.cx, display.cy + 10)
+
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
@@ -62,16 +67,23 @@ end
 
 function MjPlayingUi:_connectObserver()
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kEnterFighting, self, handler(self, self._enterFighting))
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kCardsNum, self, handler(self, self._updateCardsNumResult))
 end
 
 function MjPlayingUi:_unConnectObserver()
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterFighting, self)
+	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kCardsNum, self)
 end
 
 function MjPlayingUi:onExit()
 	self:_unConnectObserver()
 	self:timerEnd()
 	GSound:getInstance():stopMusics()
+end
+
+--result
+function MjPlayingUi:_updateCardsNumResult(data)
+	self._cardsNumLabel:setString("剩余：" .. data .. "张")
 end
 
 function MjPlayingUi:start()
@@ -99,7 +111,6 @@ end
 function MjPlayingUi:timerEnd()
 	self._secondTimerUi:stop()
 end
-
 --==========================================================
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)

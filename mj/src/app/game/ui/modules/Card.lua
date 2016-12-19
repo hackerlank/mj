@@ -142,8 +142,12 @@ end
 
 function Card:setIsQue(ret)
 	self._isQue = ret
-	self:showQueSprite()
-	self._sortValue = self._id + 100
+	if ret then
+		self:showQueSprite()
+		self._sortValue = self._id + 100
+	else
+		self._queSprite:hide()
+	end
 end
 
 function Card:getSound()

@@ -82,6 +82,7 @@ function FightingStage:_playCardSuccess(card)
 	end
 
 	GDataManager:getInstance():resetActions()
+	MjDataControl:getInstance():checkGameOver()
 end
 
 function FightingStage:_getNextSeatActive()
