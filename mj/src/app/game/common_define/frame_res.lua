@@ -3,6 +3,10 @@ local FrameRes = {
 	frame_mjtt = {
 		plist = "mj/tiles/mjtt.plist",
 		image = "mj/tiles/mjtt.png"
+	},
+	frame_menu = {
+		plist = "mj/menu.plist",
+		image = "mj/menu.png"
 	}
 }
 
@@ -50,3 +54,5 @@ mjActionX = {
 	pressed = "#action_x2.png",
 	disabled = "#action_x3.png",
 }
+
+--头像icon  0-12 【0：无人】

@@ -40,6 +40,7 @@ function ActiveSeatFlagUi:start(seat, time)
 		times_listener = handler(self, self._updateTimerLabel),
 		end_listener = function() end
 	}
+	self._timerLabel:setString(time)
 	self._secondTimer:start(params)
 	self._flagSprite:setVisible(seat > 0)
 	self:_updateFlagSpriteVec(seat)

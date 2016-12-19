@@ -72,6 +72,9 @@ function DingQueStage:_buttonCommonClick(que_type)
 	self:hide()
 	GDataManager:getInstance():setQueType(que_type)
 	this:getHandCardsBySeat(1):updateCardWallQueInfo(que_type)
+
+	--定缺完成 进入开始阶段
+	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kEnterFighting)
 end
 
 function DingQueStage:_queWanClickListener(event)

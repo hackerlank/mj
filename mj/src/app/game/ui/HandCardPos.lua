@@ -50,7 +50,9 @@ function HandCardPos:sortDarkCards(is_sort, is_last)
 	for id,card in pairs(cards) do
 		local beganPos = mjDarkPositions[seat]
 		card:setSeat(seat)
-		card:setCardType(mjDCardType.mj_dark)
+		if seat ~= 1 then
+			card:setCardType(mjDCardType.mj_dark)
+		end
 		-- if seat ~= 1 then
 		-- 	card:setCardType(mjDCardType.mj_play)
 		-- end

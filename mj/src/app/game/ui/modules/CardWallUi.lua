@@ -4,8 +4,8 @@
 	3. 检测 杠、碰、暗杠、碰杠
 ]]
 local HandCardPos = import("..HandCardPos")
-local RobotManager = import("..RobotManager")
-local PlayerManager = import("..PlayerManager")
+local RobotManager = import("..play_card.RobotManager")
+local PlayerManager = import("..play_card.PlayerManager")
 --local HuCheck = import(".HuCheck")
 local CardCheckHu = import(".CardCheckHu")
 local CardWallUi = class("CardWallUi")
@@ -43,10 +43,11 @@ function CardWallUi:addHandCards(seat, cards)
 	end
 	for id,card in pairs(cards) do
 		card:setIsMine(seat == 1)
+		card:setSeat(seat)
+		card:upCardAction()
 		table.insert(self._darkCards, #self._darkCards+1, card)
 	end
-
-	self:_darkCardChange(true)
+	self:_darkCardChange(false, false)
 end
 
 --手牌有变化

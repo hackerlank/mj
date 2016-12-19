@@ -1,5 +1,6 @@
 ListenerIds = {
 	--stage
+	kEnterDingque = "ding_que",
 	kEnterFighting = "fight_stage",
 	--
 	kPlayCard = "player_card",  --出牌				

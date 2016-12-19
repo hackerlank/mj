@@ -6,6 +6,7 @@ function FightingStage:ctor(layer)
 	-- self._gData = self._parent:getGData()
 	-- --self
 	self._seatIndex = 0
+	self._NotfirstPlay = false  --第一次出牌
 	self._seats = GDataManager:getInstance():getSeats()
 	self._playerNum = #self._seats
 
@@ -19,7 +20,11 @@ function FightingStage:getActiveSeatUp()
 	this:startGlobalTimer(seat, 15)
 	GDataManager:getInstance():setCurrentSeat(seat)
 	ww.print("----------------------当前活动玩家", seat)
-	this:getHandCardsBySeat(seat):mineFeelCard(1)
+	--第一轮不需要上牌
+	if self._NotfirstPlay then
+		this:getHandCardsBySeat(seat):mineFeelCard(1)
+	end
+	self._NotfirstPlay = true
 end
 
 function FightingStage:began()

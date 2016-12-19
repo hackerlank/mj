@@ -5,6 +5,7 @@ GDataManager = require("app.game.control.GDataManager")
 --ui
 local CardWallUi = import(".modules.CardWallUi")
 local AoperatorUi = import(".AoperatorUi")
+local SeatUi = import(".modules.SeatUi")
 --local SecondTimerUi = import(".SecondTimerUi")
 local ActiveSeatFlagUi = import(".module_ui.ActiveSeatFlagUi")  --只是标记出牌时间的一个节点
 local ReadyStage = import("..control.ReadyStage")
@@ -25,6 +26,7 @@ function MjPlayingUi:ctor()
 	self._seats = GDataManager:getInstance():getSeats()
 	--ui
 	self._HandCards = {}
+	self._PlayerSeatUis = {}
 	self._operatorUi = nil
 	self._cardsNumLabel = nil  --牌张剩余数 监听
 	self._globalTimerUi = nil
@@ -54,29 +56,30 @@ function MjPlayingUi:_setupUi()
 	self._cardsNumLabel:addTo(self)
 	self._cardsNumLabel:align(display.CENTER, display.cx, display.cy + 10)
 
-	self._globalTimerUi = ActiveSeatFlagUi.new()
-	self._globalTimerUi:addTo(self)
-	self._globalTimerUi:pos(display.cx, display.cy)
-
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
+		--todo:初始化玩家头像等信息
+		self._PlayerSeatUis[seat] = SeatUi.new(mjPlayerInfoPos[seat])
+		self._PlayerSeatUis[seat]:addTo(self)
 	end
 
 	self._readyStage = ReadyStage.new(self)
 	self._dealingStage = DealingStage.new(self)
 	self._fightingState = FightingStage.new(self)
 	self._operatorUi = AoperatorUi.new(self)
-	--self._secondTimerUi = SecondTimerUi.new(self)
-	DingQueStage.new(self)
 end
 
 function MjPlayingUi:_connectObserver()
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kEnterDingque, self, handler(self, self._enterDingque))
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kEnterFighting, self, handler(self, self._enterFighting))
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kCardsNum, self, handler(self, self._updateCardsNumResult))
+
+	
 end
 
 function MjPlayingUi:_unConnectObserver()
+	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterDingque, self)
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterFighting, self)
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kCardsNum, self)
 end
@@ -92,12 +95,26 @@ function MjPlayingUi:_updateCardsNumResult(data)
 	self._cardsNumLabel:setString("剩余：" .. data .. "张")
 end
 
+--1.准备 初始化数据
+--2.发牌
+--3.定缺
+--4.开始
+--5.结算
+
 function MjPlayingUi:start()
 	self._readyStage:began()
 	self._dealingStage:began()
 end	
 
+function MjPlayingUi:_enterDingque()
+	DingQueStage.new(self)
+end
+
 function MjPlayingUi:_enterFighting()
+	self._globalTimerUi = ActiveSeatFlagUi.new()
+	self._globalTimerUi:addTo(self)
+	self._globalTimerUi:pos(display.cx, display.cy)
+
 	self._fightingState:began()
 end
 
@@ -114,13 +131,6 @@ function MjPlayingUi:startGlobalTimer(seat, time)
 	self._globalTimerUi:start(seat, time)
 end
 
--- function MjPlayingUi:timerBegan()
--- 	self._secondTimerUi:start()
--- end
-
--- function MjPlayingUi:timerEnd()
--- 	self._secondTimerUi:stop()
--- end
 --==========================================================
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)

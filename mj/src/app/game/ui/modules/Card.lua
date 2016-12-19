@@ -100,6 +100,19 @@ function Card:_darkCardTouchListener(event)
 	end
 end
 
+--上牌动画
+function Card:upCardAction()
+	if self._seat == 1 then
+		self:setSpriteFrame(mjTDarkCardKey[1])
+		self:runAction(cc.Sequence:create(
+			cc.DelayTime:create(0.2),
+			cc.CallFunc:create(function() 
+				self:setCardType(mjDCardType.mj_dark)
+				end)
+			))
+	end
+end
+
 --======================================
 function Card:getSortId()
 	return self._sortId
