@@ -95,6 +95,7 @@ end
 --click listener
 function AoperatorUi:_commonClickListener()
 	self:hide()
+	this:startGlobalTimer(1, 10)
 	self._open = false
 end
 

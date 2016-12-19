@@ -73,6 +73,7 @@ function RobotManager:doAction()
 
 	self:_start(function() 
 		if listeners[self._recordAction] then
+			this:startGlobalTimer(self._seat, 10)
 			listeners[self._recordAction]()
 			ww.printFormat("-----ai%d操作了-----", self._seat)
 		end

@@ -5,7 +5,8 @@ GDataManager = require("app.game.control.GDataManager")
 --ui
 local CardWallUi = import(".modules.CardWallUi")
 local AoperatorUi = import(".AoperatorUi")
-local SecondTimerUi = import(".SecondTimerUi")
+--local SecondTimerUi = import(".SecondTimerUi")
+local ActiveSeatFlagUi = import(".module_ui.ActiveSeatFlagUi")  --只是标记出牌时间的一个节点
 local ReadyStage = import("..control.ReadyStage")
 local DealingStage = import("..control.DealingStage")
 local DingQueStage = import(".module_ui.DingQueStage")
@@ -26,6 +27,7 @@ function MjPlayingUi:ctor()
 	self._HandCards = {}
 	self._operatorUi = nil
 	self._cardsNumLabel = nil  --牌张剩余数 监听
+	self._globalTimerUi = nil
 	--object
 	self._readyStage = nil
 	self._dealingStage = nil
@@ -52,6 +54,10 @@ function MjPlayingUi:_setupUi()
 	self._cardsNumLabel:addTo(self)
 	self._cardsNumLabel:align(display.CENTER, display.cx, display.cy + 10)
 
+	self._globalTimerUi = ActiveSeatFlagUi.new()
+	self._globalTimerUi:addTo(self)
+	self._globalTimerUi:pos(display.cx, display.cy)
+
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
@@ -61,7 +67,7 @@ function MjPlayingUi:_setupUi()
 	self._dealingStage = DealingStage.new(self)
 	self._fightingState = FightingStage.new(self)
 	self._operatorUi = AoperatorUi.new(self)
-	self._secondTimerUi = SecondTimerUi.new(self)
+	--self._secondTimerUi = SecondTimerUi.new(self)
 	DingQueStage.new(self)
 end
 
@@ -77,7 +83,7 @@ end
 
 function MjPlayingUi:onExit()
 	self:_unConnectObserver()
-	self:timerEnd()
+	self._globalTimerUi:stop()  --总时间
 	GSound:getInstance():stopMusics()
 end
 
@@ -104,13 +110,17 @@ function MjPlayingUi:hideOperatorUi()
 	self._operatorUi:hide()
 end
 
-function MjPlayingUi:timerBegan()
-	self._secondTimerUi:start()
+function MjPlayingUi:startGlobalTimer(seat, time)
+	self._globalTimerUi:start(seat, time)
 end
 
-function MjPlayingUi:timerEnd()
-	self._secondTimerUi:stop()
-end
+-- function MjPlayingUi:timerBegan()
+-- 	self._secondTimerUi:start()
+-- end
+
+-- function MjPlayingUi:timerEnd()
+-- 	self._secondTimerUi:stop()
+-- end
 --==========================================================
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)

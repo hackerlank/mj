@@ -15,11 +15,8 @@ end
 
 function FightingStage:getActiveSeatUp()
 	this:hideOperatorUi()
-	this:timerBegan()
-	-- for _,_seat in pairs(self._seats) do
-	-- 	this:getHandCardsBySeat(_seat):getHuCheck():resetHu()
-	-- end
 	local seat = self:_getActivitySeat()
+	this:startGlobalTimer(seat, 15)
 	GDataManager:getInstance():setCurrentSeat(seat)
 	ww.print("----------------------当前活动玩家", seat)
 	this:getHandCardsBySeat(seat):mineFeelCard(1)
@@ -66,6 +63,7 @@ function FightingStage:_playCardSuccess(card)
 	
 	local actionSeats = GDataManager:getInstance():checkEffectiveAction()  --找出有效的序列
 	if actionSeats then
+		this:startGlobalTimer(0, 10)
 		--AI会有自己的响应机制 如果超时，则肯定是玩家未操作，按过处理
 		for _seat,val in pairs(actionSeats) do
 			if _seat ~= 1 then
