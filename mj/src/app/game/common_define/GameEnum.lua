@@ -53,7 +53,7 @@ mjDCardType = {
 mjDarkCardKey = {
 	[1] = "x_",
 	[2] = "by.png",
-	[3] = "bx.png",
+	[3] = "bxx.png",  --33*47  总要统一一下，好乱  
 	[4] = "bz.png"
 }
 

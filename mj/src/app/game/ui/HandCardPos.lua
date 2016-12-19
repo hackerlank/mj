@@ -69,7 +69,7 @@ function HandCardPos:sortDarkCards(is_sort, is_last)
 		elseif seat == 2 then  --16*40
 			card:pos(beganPos.x, beganPos.y + 35* id + getDis(2))
 		elseif seat == 3 then  --66* 94
-			card:pos(beganPos.x - 66* id - getDis(3), beganPos.y)
+			card:pos(beganPos.x - 33* id - getDis(3), beganPos.y)
 		else
 			card:pos(beganPos.x, beganPos.y - 35* id - getDis(4))
 		end

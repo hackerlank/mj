@@ -85,7 +85,7 @@ mjPlayerInfoPos = {
 mjDarkPositions = {
 	[1] = cc.p(0, 50),  --本家手牌的位置
 	[2] = cc.p(display.width - 120, 100),
-	[3] = cc.p(display.width, display.height-50),
+	[3] = cc.p(display.cx + 300, display.height-50),
 	[4] = cc.p(120, 100 + 40*13-20)
 }
 
