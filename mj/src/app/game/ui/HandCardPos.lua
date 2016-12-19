@@ -67,11 +67,11 @@ function HandCardPos:sortDarkCards(is_sort, is_last)
 		if seat == 1 then  --66*94
 			card:pos(beganPos.x + 66* id + getDis(1), beganPos.y)
 		elseif seat == 2 then  --16*40
-			card:pos(beganPos.x, beganPos.y + 35* id + getDis(2))
+			card:pos(beganPos.x, beganPos.y + 32* id + getDis(2))
 		elseif seat == 3 then  --66* 94
 			card:pos(beganPos.x - 33* id - getDis(3), beganPos.y)
 		else
-			card:pos(beganPos.x, beganPos.y - 35* id - getDis(4))
+			card:pos(beganPos.x, beganPos.y - 32* id - getDis(4))
 		end
 	end
 end
@@ -150,21 +150,21 @@ end
 --有杠牌 碰牌_showCards
 function HandCardPos:setShowCardPos()
 	--位置初始位置是手牌之后
-	local cards = self._handCard:getDrakCards()
+	local num = #self._handCard:getDrakCards()
+	if (num-2)%3 == 0 then
+		num = num - 1
+	end
 	local card_lists = self._handCard:getShowCards()
 	local seat = self._handCard:getSeat()
 
-	--[[
-		位置不一样的人 牌长宽不一样，初始位置不一样
-	]]
 	if seat == 1 then
-		self._showBeganPos = cc.p(mjDarkPositions[1].x + #cards*mjDarkCardSize[1].width + 170 + self._upCardDistance, mjDarkPositions[1].y)
+		self._showBeganPos = cc.p(mjDarkPositions[1].x + num*mjDarkCardSize[1].width + 190 + self._upCardDistance, mjDarkPositions[1].y)
 	elseif seat == 2 then
-		self._showBeganPos = cc.p(mjDarkPositions[2].x, mjDarkPositions[2].y + #cards * mjDarkCardSize[2].height + self._upCardDistance)
+		self._showBeganPos = cc.p(mjDarkPositions[2].x, mjDarkPositions[2].y+num*mjDarkCardSize[2].height+30+self._upCardDistance)
 	elseif seat == 3 then
-		self._showBeganPos = cc.p(mjDarkPositions[3].x - #cards*mjDarkCardSize[3].width - 130 - self._upCardDistance, mjDarkPositions[3].y)
+		self._showBeganPos = cc.p(mjDarkPositions[3].x - num*mjDarkCardSize[3].width - 80 - self._upCardDistance, mjDarkPositions[3].y)
 	elseif seat == 4 then
-		self._showBeganPos = cc.p(mjDarkPositions[4].x, mjDarkPositions[4].y - #cards * mjDarkCardSize[4].height - 30 - self._upCardDistance)
+		self._showBeganPos = cc.p(mjDarkPositions[4].x, mjDarkPositions[4].y - num * mjDarkCardSize[4].height - self._upCardDistance)
 	end
 
 	for _,card_list in pairs(card_lists) do
@@ -175,8 +175,7 @@ end
 function HandCardPos:_setShowCardsPosition(cards, card_list, seat)
 	local list = card_list.value
 	local type_ = card_list.type
-	local num = #list
-
+	local num = #list - 1
 	for id,card in pairs(list) do
 		if card:getSeat() ~= seat then
 			this:getHandCardsBySeat(card:getSeat()):getHandCardPos():subPlayCardNum()  --这个调用很搞笑

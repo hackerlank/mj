@@ -60,7 +60,7 @@ mjDarkCardKey = {
 mjDarkCardSize = {
 	[1] = cc.size(66, 94),
 	[2] = cc.size(16, 40),
-	[3] = cc.size(66, 94),
+	[3] = cc.size(37, 64),
 	[4] = cc.size(16, 40),
 }
 
