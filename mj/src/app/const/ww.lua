@@ -1,5 +1,7 @@
 ww = ww or {}
 
+ww.JIANTIZI = "fnt/jiantizi.ttf"
+
 ww.DEBUG = false
 
 function ww.print(fmt, ...)
@@ -28,7 +30,7 @@ function ww.createShieldTouchLayer(parent_node, touch_listener, alpha)
 end
 
 function ww.createLabel(text, size, color, font)
-    return cc.ui.UILabel.new({text = text, size = size, color = color, font = font or FNT_COMMON_JIANTI})
+    return cc.ui.UILabel.new({text = text, size = size, color = color, font = font or ww.JIANTIZI})
 end
 
 function ww.createMultiLabel(text, font_size, size, color, font, align, valign)
@@ -36,7 +38,7 @@ function ww.createMultiLabel(text, font_size, size, color, font, align, valign)
     text = text,
     size = font_size,
     color = color,
-    font = font or FNT_COMMON_JIANTI,
+    font = font or ww.JIANTIZI,
     align = align or cc.TEXT_ALIGNMENT_CENTER,
     valign = valign or cc.VERTICAL_TEXT_ALIGNMENT_CENTER,
     dimensions = size

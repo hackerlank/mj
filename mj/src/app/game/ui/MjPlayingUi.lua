@@ -69,7 +69,7 @@ function MjPlayingUi:_setupUi()
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
 		--todo:初始化玩家头像等信息
-		self._PlayerSeatUis[seat] = SeatUi.new(mjPlayerInfoPos[seat])
+		self._PlayerSeatUis[seat] = SeatUi.new(seat)
 		self._PlayerSeatUis[seat]:addTo(self)
 	end
 
