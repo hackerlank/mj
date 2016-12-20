@@ -36,4 +36,21 @@ function SeatUi:changePlayer(player)
 	self._nickName:setString(self._player.nick_name)
 end
 
+--action
+function SeatUi:actionPeng()
+
+end
+
+function SeatUi:actionGang()
+
+end
+
+function SeatUi:actionHu()
+
+end
+
+function SeatUi:subScore()
+
+end
+
 return SeatUi

@@ -56,6 +56,15 @@ function MjPlayingUi:_setupUi()
 	self._cardsNumLabel:addTo(self)
 	self._cardsNumLabel:align(display.CENTER, display.cx, display.cy + 10)
 
+	self._playCardFlag = display.newSprite("mj/sp_play_flag.png")
+	self._playCardFlag:addTo(self)
+	self._playCardFlag:pos(display.cx, display.cy)
+	self._playCardFlag:runAction(cc.RepeatForever:create(cc.Sequence:create(
+		cca.moveBy(0.3, 0, -10),
+		cca.moveBy(0.3, 0, 10)
+		)))
+	self._playCardFlag:hide()
+
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
