@@ -17,6 +17,15 @@ function HandCardPos:ctor(layer, hand_card)
 	self._numIndex = 0     --这两条都用于计算打出牌的位置
 end
 
+function HandCardPos:reset()
+	--=============未手持， 碰、杠、暗杠的牌位置展示
+	self._showBeganPos = nil
+	self._upCardDistance = 0  --上牌离手牌距离
+	--=============
+	self._playCardNum = 0  --已打出多少张牌
+	self._numIndex = 0     --这两条都用于计算打出牌的位置
+end
+
 function HandCardPos:subPlayCardNum()
 	--todo: 打出的手牌 被碰、杠、胡了
 	self._playCardNum = self._playCardNum - 1

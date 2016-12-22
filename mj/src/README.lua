@@ -49,4 +49,8 @@ HandCardUi = {
 	【解决】DataManager中加入 判断是否可正常出牌的参数，_isPlayState 进行限制
 	2. 本家可操作，需要出牌完成后才执行正常步奏 nextactivityseat
 	【解决】需要引入参数标记本家的当前状态 GameEnum.mjFighintInfoType
+
+--===================
+--1. 计时 处理
+--2. 开始写简单AI
 ]]

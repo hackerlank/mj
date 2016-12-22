@@ -93,9 +93,15 @@ function AoperatorUi:setButtonEnableFalse(index)
 end
 
 --click listener
-function AoperatorUi:_commonClickListener()
+function AoperatorUi:_commonClickListener(is_hu)
 	self:hide()
-	this:startGlobalTimer(1, 10)
+	local function end_listener()
+		--碰、或杠、自动出牌
+		this:getHandCardsBySeat(1):getManager():autoPlayCard()
+	end
+	if not is_hu then
+		this:startGlobalTimer(1, 10, end_listener)
+	end
 	self._open = false
 end
 
@@ -118,7 +124,7 @@ function AoperatorUi:_actionGClickListener()
 end
 
 function AoperatorUi:_actionHClickListener()
-	self:_commonClickListener()
+	self:_commonClickListener(true)
 	if self._huInfo then
 		this:updateSeatIndex(1)
 		this:getHandCardsBySeat(1):insertHuCard(self._huInfo.card)

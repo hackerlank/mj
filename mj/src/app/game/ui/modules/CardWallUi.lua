@@ -48,13 +48,15 @@ function CardWallUi:reset()
 
 	self._peng = nil  --可碰列表
 	self._gang = nil  --可杠列表
+
+	self._handCardPos:reset()
 end
 
 --初始化：发牌阶段上牌多张；开始过程上牌是一张一张的上的；所以只用于初始化发牌
 function CardWallUi:addHandCards(seat, cards)
 	self._seat = seat
 	if seat == 1 then
-		self._manager = PlayerManager.new()
+		self._manager = PlayerManager.new(this, self)
 	else
 		self._manager = RobotManager.new(this, self)
 	end
@@ -150,6 +152,11 @@ function CardWallUi:mineFeelCard()
 	if self:_checkQue({card}) then
 		card:setIsQue(true)
 	end
+
+	local function end_listener()
+		self._manager:autoPlayCard(card)
+	end
+	this:startGlobalTimer(self._seat, 15, end_listener)
 	--放在暗牌列表最后
 	card:setSortId(#self._darkCards+1)  
 	table.insert(self._darkCards, #self._darkCards+1, card)

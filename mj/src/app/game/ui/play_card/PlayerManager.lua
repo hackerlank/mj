@@ -1,12 +1,20 @@
-local PlayerManager = class("PlayerManager")
+local PlayerManager = class("PlayerManager", import(".PlayCardManager"))
 
-function PlayerManager:ctor()
-
+-- self._actionEnum = {
+-- 		hu = 1,
+-- 		dgang = 2,
+-- 		mgang = 3,
+-- 		gang = 4,
+-- 		peng = 5
+-- 	}
+function PlayerManager:ctor(layer, cardWall)
+	PlayerManager.super.ctor(self, layer, cardWall)
 end
 
 function PlayerManager:playCard(card)
-	--card 刚抓的牌
+
 end
+
 
 --检测到暗杠
 function PlayerManager:checkDarkGang(ret)

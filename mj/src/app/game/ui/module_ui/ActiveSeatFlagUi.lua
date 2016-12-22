@@ -31,14 +31,14 @@ end
 --正常出牌流程时间 15 有座位号
 --检测有操作 等待时间 10s 没有座位号
 
-function ActiveSeatFlagUi:start(seat, time)
+function ActiveSeatFlagUi:start(seat, time, end_listener)
 	self:cstop()
 	local params = {
 		time = 1,
 		total_seconds = time or 15,
 		direction = 2,
 		times_listener = handler(self, self._updateTimerLabel),
-		end_listener = function() end
+		end_listener = end_listener
 	}
 	self._timerLabel:setString(time)
 	self._secondTimer:start(params)

@@ -1,15 +1,6 @@
 local SecondTimer = require("app.game.ui.modules.SecondTimer")
 local PlayCardManager = class("PlayCardManager")
 
-local kActionEnum = {
-	hu = 1,
-	dgang = 2,
-	mgang = 3,
-	gang = 4,
-	peng = 5
-}
-
-
 --共同点
 --[[
 	1. 自动出牌（1.缺牌直接出， 检测手中缺牌打出）
@@ -44,6 +35,11 @@ function PlayCardManager:_start(listener)
 end
 
 function PlayCardManager:playCard(card)
+	self:autoPlayCard(card)
+end
+
+--auto play card
+function PlayCardManager:autoPlayCard(card)
 	--card: 抓上来的手牌
 	if self._recordAction > 0 then
 		--有操作执行 跳过执行

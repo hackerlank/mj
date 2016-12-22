@@ -78,13 +78,17 @@ function MjPlayingUi:_setupUi()
 	-- 	)))
 	-- self._playCardFlag:hide()
 
+	self._globalTimerUi = ActiveSeatFlagUi.new()
+	self._globalTimerUi:addTo(self)
+	self._globalTimerUi:pos(display.cx, display.cy)
+	self._globalTimerUi:hide()
+
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
 		--todo:初始化玩家头像等信息
 		self._PlayerSeatUis[seat] = SeatUi.new(self, seat)
 	end
-	
 
 	self._readyStage = ReadyStage.new(self)
 	self._dealingStage = DealingStage.new(self)
@@ -146,6 +150,7 @@ function MjPlayingUi:start()
 end	
 
 function MjPlayingUi:_enterDingque()
+	self._globalTimerUi:hide()
 	if not self._dignque then
 		self._dignque = DingQueStage.new(self)
 	else
@@ -154,14 +159,7 @@ function MjPlayingUi:_enterDingque()
 end
 
 function MjPlayingUi:_enterFighting()
-	if not self._globalTimerUi then
-		self._globalTimerUi = ActiveSeatFlagUi.new()
-		self._globalTimerUi:addTo(self)
-		self._globalTimerUi:pos(display.cx, display.cy)
-	else
-		self._globalTimerUi:show()
-	end
-
+	self._globalTimerUi:show()
 	self._fightingState:began()
 end
 
@@ -189,8 +187,8 @@ function MjPlayingUi:hideOperatorUi()
 	self._operatorUi:hide()
 end
 
-function MjPlayingUi:startGlobalTimer(seat, time)
-	self._globalTimerUi:start(seat, time)
+function MjPlayingUi:startGlobalTimer(seat, time, end_listener)
+	self._globalTimerUi:start(seat, time, end_listener)
 end
 
 --==========================================================

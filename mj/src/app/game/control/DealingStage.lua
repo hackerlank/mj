@@ -54,7 +54,7 @@ function DealingStage:_fourDealing(seat)
 		if i == 3 then
 			default = 5
 			if seat == self._bankerSeat then
-				default = 6
+				default = 5
 			end
 		end
 		local function listener()
@@ -82,6 +82,12 @@ function DealingStage:_enterDingque()
 	--当做发牌结束(进入定缺阶段)
 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kEnterDingque)
 	self._IsEnterDingque = true
+	this:getHandCardsBySeat(self._bankerSeat):mineFeelCard(1)
+	-- local function end_listener()
+	-- 	self._manager:autoPlayCard(card)
+	-- 	this:getu
+	-- end
+	-- this:startGlobalTimer(self._bankerSeat, 15, end_listener)
 end
 
 return DealingStage
