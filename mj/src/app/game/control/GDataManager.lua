@@ -19,19 +19,12 @@ end
 local this = nil
 
 function GDataManager:ctor()	
-	self._figingInfo = {}   --胡牌优先级信息
-	--都是暂时存放可相应的序列
-	self._isHuSeat = {}   --可能多个 1炮多响
-	self._isGangSeat = {}
-	self._isPengSeat = {}
-	--能够生效的操作序列
-	self._actionSeats = {}
+	self._seats = {1, 2, 3, 4}  --初始化好 继续游戏不会变动
 end
 
 function GDataManager:reset()
 	self._currentPos = 0 --当前活动玩家
 	self._queType = 0
-	self._seats = {1, 2, 3, 4}
 
 	self._actions = {}  --操作序列(有人出牌，其他三家做检测)
 	self._actionNum = 0
@@ -133,10 +126,6 @@ end
 
 function GDataManager:getSeats()
 	return self._seats
-end
-
-function GDataManager:getActionSeats()
-	return self._actionSeats
 end
 
 function GDataManager:getMineHasAction()

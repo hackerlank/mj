@@ -13,6 +13,4 @@ function ReadyStage:began()
 	MjDataControl:getInstance():dataStart()  --初始化麻將數據（創建了麻將Ui）
 end
 
-
-
 return ReadyStage

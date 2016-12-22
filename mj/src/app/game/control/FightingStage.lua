@@ -28,6 +28,8 @@ function FightingStage:getActiveSeatUp()
 end
 
 function FightingStage:began()
+	self._seatIndex = 0
+	self._NotfirstPlay = false  --第一次出牌
 	self:getActiveSeatUp()
 end
 
@@ -81,11 +83,11 @@ function FightingStage:_playCardSuccess(card)
 	else
 		--都未检测到具有操作，过牌
 		--注意：如果对应的操作，没有被执行，也视为过牌
+		MjDataControl:getInstance():checkGameOver()
 		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 	end
 
 	GDataManager:getInstance():resetActions()
-	MjDataControl:getInstance():checkGameOver()
 end
 
 function FightingStage:_getNextSeatActive()

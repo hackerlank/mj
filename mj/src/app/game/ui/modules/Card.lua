@@ -1,6 +1,8 @@
 --所有牌的基類
 local Card = class("Card", function() return display.newSprite() end)
 
+local que_card = "mj/tiles/que_card.png"
+
 function Card:ctor()
 	self._id = nil
 	self._name = nil
@@ -17,7 +19,7 @@ function Card:ctor()
 	--self:setCardType(mjDCardType.mj_init)  --一开始所有的牌都是默认牌
 	self:addNodeEventListener(cc.NODE_TOUCH_EVENT, handler(self, self._darkCardTouchListener))
 
-	self._queSprite = display.newScale9Sprite(mjQueCard, 0, 0, cc.size(10, 10))
+	self._queSprite = display.newScale9Sprite(que_card, 0, 0, cc.size(10, 10))
 	self._queSprite:addTo(self)
 end		
 
@@ -69,6 +71,7 @@ function Card:_changeToDark()
 		card = mjDarkCardKey[self._seat]
 	end
 	self:setSpriteFrame(card)
+	self:setLocalZOrder(1)
 end
 
 --出牌形式

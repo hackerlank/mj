@@ -6,7 +6,7 @@ function AoperatorUi:ctor(layer)
 	this = layer
 
 	self:addTo(this, mjLocalZorders.operate_ui)
-	self:pos(display.cx/3, 250)
+	self:pos(display.cx, 180)
 
 	self._buttons = {}
 	self._open = false

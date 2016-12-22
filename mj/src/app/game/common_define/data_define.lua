@@ -41,60 +41,68 @@ for i=1, 42 do
 	mjCardIndex[i] = 0
 end
 
---麻將四家位置
-GPositions = {
-		[1] = {
-			id = 1,
-			name = "本家",
-			pos = cc.p(100, 100),
-		},
-		[2] = {
-			id = 2,
-			name = "下家",
-			pos = cc.p(display.width -79-50, 20),
-		},
-		[3] = {
-			id = 3,
-			name = "对家",
-			pos = cc.p(200, display.height-100),
-		},
-		[4] = {
-			id = 4,
-			name = "上家",
-			pos = cc.p(50, 20),
-		}
+-- --麻將四家位置
+-- GPositions = {
+-- 		[1] = {
+-- 			id = 1,
+-- 			name = "本家",
+-- 			pos = cc.p(100, 100),
+-- 		},
+-- 		[2] = {
+-- 			id = 2,
+-- 			name = "下家",
+-- 			pos = cc.p(display.width -79-50, 20),
+-- 		},
+-- 		[3] = {
+-- 			id = 3,
+-- 			name = "对家",
+-- 			pos = cc.p(200, display.height-100),
+-- 		},
+-- 		[4] = {
+-- 			id = 4,
+-- 			name = "上家",
+-- 			pos = cc.p(50, 20),
+-- 		}
+-- }
+
+--手牌位置
+mjDarkPositions = {
+	[1] = cc.p(0, 50),  --本家手牌的位置
+	[2] = cc.p(display.width - 120, 130),
+	[3] = cc.p(display.cx + 37*6, display.height-35),
+	[4] = cc.p(120, 130 + 37*13-20)
 }
 
 --用户信息位置
 mjPlayerInfoPos = {
 	[1] = {
-		pos = cc.p(display.width - 60, 170)
+		pos = cc.p(display.width - 60, 170),
+		zPos = cc.p(display.cx, 150),
+		banker_pos = cc.p(40, 15)
 	},
 	[2] = {
-		pos = cc.p(display.width - 60, display.cy)
+		pos = cc.p(display.width - 40, display.top - 250),
+		zPos = cc.p(display.width - 70, display.cy),
+		banker_pos = cc.p(-40, 15)
 	},
 	[3] = { 
-		pos = cc.p(70, display.top - 70)
+		pos = cc.p(mjDarkPositions[3].x + 70, mjDarkPositions[3].y-15),--cc.p(display.width - 270, display.top - 50),
+		zPos = cc.p(display.cx, display.top - 80),
+		banker_pos = cc.p(40, 15)
 	},
 	[4] = {
-		pos = cc.p(55, display.cy)
+		pos = cc.p(40, display.top - 250),
+		zPos = cc.p(70, display.cy),
+		banker_pos = cc.p(40, 15)
 	}
-}
-
---手牌位置
-mjDarkPositions = {
-	[1] = cc.p(0, 50),  --本家手牌的位置
-	[2] = cc.p(display.width - 120, 100),
-	[3] = cc.p(display.cx + 300, display.height-50),
-	[4] = cc.p(120, 100 + 40*13-20)
 }
 
 --出牌起始位置
 mjPlayPositions = {
 	[1] = cc.p(display.cx - 100, display.cy - 100),
-	[2] = cc.p(display.cx + 150, display.cy - 120),
-	[3] = cc.p(display.cx + 100, display.cy + 100),
-	[4] = cc.p(display.cx - 150, display.cy + 120),
+	[2] = cc.p(display.cx + 180, display.cy - 100+10),
+	[3] = cc.p(display.cx + 100, display.cy + 140),
+	[4] = cc.p(display.cx - 180, display.cy + 100+35),
 }
 
 --胡牌起始未知
@@ -106,9 +114,9 @@ mjHuCardPositions = {
 }
 
 --头像（时钟位置）
-mjPlayerPositions = {
-	[1] = cc.p(0, 50),  --本家手牌的位置
-	[2] = cc.p(display.width - 50, 100),
-	[3] = cc.p(display.width - 50, display.height-50),
-	[4] = cc.p(50, display.height - 50)
-}
+-- mjPlayerPositions = {
+-- 	[1] = cc.p(0, 50),  --本家手牌的位置
+-- 	[2] = cc.p(display.width - 50, 100),
+-- 	[3] = cc.p(display.width - 50, display.height-50),
+-- 	[4] = cc.p(40, display.height - 50)
+-- }

@@ -33,6 +33,15 @@ function ww.createLabel(text, size, color, font)
     return cc.ui.UILabel.new({text = text, size = size, color = color, font = font or ww.JIANTIZI})
 end
 
+function ww.createBMFontLabel(txt, fnt)
+    local label = {
+        UILabelType = 1,
+        text = txt,
+        font = fnt,
+    }
+    return cc.ui.UILabel.new(label)
+end
+
 function ww.createMultiLabel(text, font_size, size, color, font, align, valign)
 	local params = {
     text = text,

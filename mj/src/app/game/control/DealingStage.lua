@@ -22,6 +22,7 @@ function DealingStage:ctor(layer)
 end
 
 function DealingStage:began()
+	self._IsEnterDingque = false
 	--計算 出莊家位置 1
 	local surplus_pos = SurplusPosition.new(this)
 	surplus_pos:setSurplusCardsPosition(self._BankerVec)

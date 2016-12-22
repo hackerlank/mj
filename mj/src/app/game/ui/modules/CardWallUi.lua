@@ -33,6 +33,23 @@ function CardWallUi:ctor(layer)
 	self._huCheck = CardCheckHu.new(self)
 end
 
+function CardWallUi:reset()
+	self._seat = 0
+	self._queType = nil  --定缺类型
+
+	self._darkCards = {}  --牌墙【暗牌】
+	self._showCards = {}  --明牌【碰、杠】
+	self._huCards = {}    --明牌【胡的牌】
+
+	self._jiang = {}
+	self._kezi = {}  --明刻(碰的牌)
+	self._dkezi = {} --暗刻
+	self._gangzi = {}  --暗杠（手中未杠出去的牌）
+
+	self._peng = nil  --可碰列表
+	self._gang = nil  --可杠列表
+end
+
 --初始化：发牌阶段上牌多张；开始过程上牌是一张一张的上的；所以只用于初始化发牌
 function CardWallUi:addHandCards(seat, cards)
 	self._seat = seat
@@ -180,7 +197,11 @@ end
 
 function CardWallUi:insertHuCard(card)
 	table.insert(self._huCards, #self._huCards+1, card)
-	self._handCardPos:huCardsPositions(card)
+	local function listener()
+		self._handCardPos:huCardsPositions(card)
+	end
+	this:getPlayerSeatUi(self._seat):actionHu(listener)
+	
 end
 
 --================================================
@@ -202,6 +223,7 @@ end
 function CardWallUi:_checkDarkGang()
 	--只检测手中的暗杠
 	local num = #self._gangzi
+	dump(self._gangzi)
 	if num > 0 then
 		if self:_checkQue(self._gangzi) then
 			return false
@@ -270,11 +292,14 @@ function CardWallUi:doPeng()
 		--碰的这三张牌变为持有的铭刻
 		table.insert(self._kezi, #self._kezi+1, clone(self._peng))
 		self:_removeCards(self._peng)
-		self:_darkCardChange(true, true)
 		self._peng = nil
 
 		this:updateSeatIndex(self._seat)
 		GSound:getInstance():playEffect(mjSpecialEffect.woman.peng)
+		local function listener()
+			self:_darkCardChange(true, true)
+		end
+		this:getPlayerSeatUi(self._seat):actionPeng(listener)
 	end
 end
 
@@ -285,9 +310,12 @@ function CardWallUi:doDarkGang()
 			value = clone(self._gangzi[1])
 		})
 		self:_removeCards(self._gangzi[1])
-		self:_darkCardChange(true)
-
+		
 		GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
+		local function listener()
+			self:_darkCardChange(true)
+		end
+		this:getPlayerSeatUi(self._seat):actionGang(listener)
 	end
 end
 
@@ -297,10 +325,13 @@ function CardWallUi:doMGang()
 			if cards[1]:getId() == self._gang[1]:getId() then
 				self._showCards[id].type = mjNoDCardType.gang
 				table.insert(self._showCards[id].value, #self._showCards[id].value+1, self._gang[4])
-				self:_darkCardChange(true)
 				self._gang = nil
 
 				GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
+				local function listener()
+					self:_darkCardChange(true)
+				end
+				this:getPlayerSeatUi(self._seat):actionGang(listener)
 			end
 		end
 	end
@@ -314,11 +345,13 @@ function CardWallUi:doGang()
 			})
 		self:_removeCards(self._gang)
 		self._gang = nil
-		self:_darkCardChange()
-
 		this:updateSeatIndex(self._seat)
 
 		GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
+		local function listener()
+			self:_darkCardChange()
+		end
+		this:getPlayerSeatUi(self._seat):actionGang(listener)
 	end
 end
 

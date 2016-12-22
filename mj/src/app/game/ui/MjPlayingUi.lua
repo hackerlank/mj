@@ -15,14 +15,14 @@ local FightingStage = import("..control.FightingStage")
 local MjPlayingUi = class("MjPlayingUi", function() return display.newLayer() end)
 
 local SpriteRes = {
-	background = "background/bg.jpg"
+	background = "background/bg.jpg",
+	btn_start = {normal = "#start.png", pressed = "#start2.png"}
 }
 
 function MjPlayingUi:ctor()
 	self:setNodeEventEnabled(true)
 	--data
 	GDataManager:getInstance():setLayer(self)
-	GDataManager:getInstance():reset()
 	self._seats = GDataManager:getInstance():getSeats()
 	--ui
 	self._HandCards = {}
@@ -34,10 +34,10 @@ function MjPlayingUi:ctor()
 	self._readyStage = nil
 	self._dealingStage = nil
 	self._fightingState = nil
+	self._dignque = nil
 
 	self:_setupUi()
 	self:_connectObserver()
-	self:start()
 end
 
 function MjPlayingUi:_setupUi()
@@ -52,26 +52,39 @@ function MjPlayingUi:_setupUi()
 	:addTo(self)
 	:pos(display.cx, display.cy - 55)
 
-	self._cardsNumLabel = ww.createLabel("剩余: 108")
+	--余牌统计
+	self._cardsNumLabel = ww.createLabel("")
 	self._cardsNumLabel:addTo(self)
-	self._cardsNumLabel:align(display.CENTER, display.cx, display.cy + 10)
+	self._cardsNumLabel:align(display.LEFT_CENTER, 40, display.top - 50)
+	--开始按钮
+	self._beganButton = ww.createButton(SpriteRes.btn_start)
+	self._beganButton:addTo(self)
+	self._beganButton:pos(display.cx, display.cy - 120)
+	self._beganButton:onButtonClicked(handler(self, self._beganButtonClickListener))
 
-	self._playCardFlag = display.newSprite("mj/sp_play_flag.png")
-	self._playCardFlag:addTo(self)
-	self._playCardFlag:pos(display.cx, display.cy)
-	self._playCardFlag:runAction(cc.RepeatForever:create(cc.Sequence:create(
-		cca.moveBy(0.3, 0, -10),
-		cca.moveBy(0.3, 0, 10)
-		)))
-	self._playCardFlag:hide()
+	-- local xx = ww.createButton(SpriteRes.btn_start)
+	-- xx:addTo(self, 100000)
+	-- xx:pos(display.cx, display.cy + 120)
+	-- xx:onButtonClicked(function()  
+	-- 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kGameOver)
+	-- 	end)
+
+	-- self._playCardFlag = display.newSprite("mj/sp_play_flag.png")
+	-- self._playCardFlag:addTo(self)
+	-- self._playCardFlag:pos(display.cx, display.cy)
+	-- self._playCardFlag:runAction(cc.RepeatForever:create(cc.Sequence:create(
+	-- 	cca.moveBy(0.3, 0, -10),
+	-- 	cca.moveBy(0.3, 0, 10)
+	-- 	)))
+	-- self._playCardFlag:hide()
 
 	--todo：初始化手牌（还未有手牌数据）
 	for _,seat in pairs(self._seats) do
 		self._HandCards[seat] = CardWallUi.new(self)
 		--todo:初始化玩家头像等信息
-		self._PlayerSeatUis[seat] = SeatUi.new(seat)
-		self._PlayerSeatUis[seat]:addTo(self)
+		self._PlayerSeatUis[seat] = SeatUi.new(self, seat)
 	end
+	
 
 	self._readyStage = ReadyStage.new(self)
 	self._dealingStage = DealingStage.new(self)
@@ -82,15 +95,15 @@ end
 function MjPlayingUi:_connectObserver()
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kEnterDingque, self, handler(self, self._enterDingque))
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kEnterFighting, self, handler(self, self._enterFighting))
+	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kGameOver, self, handler(self, self._enterGameOver))
 	UIChangeObserver:getInstance():addUIChangeObserver(ListenerIds.kCardsNum, self, handler(self, self._updateCardsNumResult))
-
-	
 end
 
 function MjPlayingUi:_unConnectObserver()
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterDingque, self)
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kEnterFighting, self)
 	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kCardsNum, self)
+	UIChangeObserver:getInstance():removeOneUIChangeObserver(ListenerIds.kGameOver, self)
 end
 
 function MjPlayingUi:onExit()
@@ -104,27 +117,67 @@ function MjPlayingUi:_updateCardsNumResult(data)
 	self._cardsNumLabel:setString("剩余：" .. data .. "张")
 end
 
+----button listener
+function MjPlayingUi:_beganButtonClickListener(event)
+	self:start()
+	event.target:hide()
+end
 --1.准备 初始化数据
 --2.发牌
 --3.定缺
 --4.开始
 --5.结算
 
+function MjPlayingUi:restar()
+
+end
+
 function MjPlayingUi:start()
+	GDataManager:getInstance():reset()
+
+	-- for _,seat in pairs(self._seats) do
+	-- 	self._HandCards[seat] = CardWallUi.new(self)
+	-- 	--todo:初始化玩家头像等信息
+	-- 	self._PlayerSeatUis[seat] = SeatUi.new(self, seat)
+	-- end
+	
 	self._readyStage:began()
 	self._dealingStage:began()
 end	
 
 function MjPlayingUi:_enterDingque()
-	DingQueStage.new(self)
+	if not self._dignque then
+		self._dignque = DingQueStage.new(self)
+	else
+		self._dignque:show()
+	end
 end
 
 function MjPlayingUi:_enterFighting()
-	self._globalTimerUi = ActiveSeatFlagUi.new()
-	self._globalTimerUi:addTo(self)
-	self._globalTimerUi:pos(display.cx, display.cy)
+	if not self._globalTimerUi then
+		self._globalTimerUi = ActiveSeatFlagUi.new()
+		self._globalTimerUi:addTo(self)
+		self._globalTimerUi:pos(display.cx, display.cy)
+	else
+		self._globalTimerUi:show()
+	end
 
 	self._fightingState:began()
+end
+
+--游戏结算
+function MjPlayingUi:_enterGameOver()
+	MjDataControl:getInstance():removeAllCards()
+	self._beganButton:show()
+	for _,seat in pairs(self._seats) do
+		self._HandCards[seat]:reset()
+		self._PlayerSeatUis[seat]:setMarkQue()
+	end
+	
+	--hide
+	self._operatorUi:hide()
+	self._globalTimerUi:hide()
+	self._cardsNumLabel:setString("")
 end
 
 --非本类调用、中转过程
@@ -144,6 +197,10 @@ end
 --get
 function MjPlayingUi:getHandCardsBySeat(seat)
 	return self._HandCards[seat]
+end
+
+function MjPlayingUi:getPlayerSeatUi(seat)
+	return self._PlayerSeatUis[seat]
 end
 
 return MjPlayingUi

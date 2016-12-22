@@ -144,7 +144,16 @@ end
 function MjDataControl:checkGameOver()
 	if self.m_current_num == self.m_cards_num then
 		self.m_game_over = true
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kGameOver)
 	end
+end
+
+--删除掉所有的牌\等待重新生成
+function MjDataControl:removeAllCards()
+	for _,card in pairs(self.m_mj_array) do
+		card:removeFromParent()
+	end
+	self.m_mj_array = {}
 end
 
 function MjDataControl:getMjArray()
