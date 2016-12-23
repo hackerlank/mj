@@ -60,7 +60,9 @@ function PlayCardManager:autoPlayCard(card)
 		return
 	end
 	--3. 没有缺牌,抓什么打社
-	local play_id = self:baseAIPlayCard()
+	--local play_id = self:baseAIPlayCard()
+	--新的计算
+	local play_id = self:_aiPlayCard()
 	if play_id == 0 then
 		--没有计算好，填补bug
 		if card then
@@ -72,6 +74,7 @@ function PlayCardManager:autoPlayCard(card)
 	else
 		self:_playCurrentCard(self:_checkPlayCardById(play_id))
 	end
+
 end
 
 function PlayCardManager:_checkPlayCardById(id)
@@ -126,12 +129,82 @@ end
 --=====================================
 ------智能出牌---------
 --[[
-	1. 锁定 顺子
-	2. 锁定 刻子
-	3. 定级 对子
-	4. 相近牌等级
-	5. 出散牌
+	a、检查听牌
+
+　　　　b、去除间隔2个空位的不连续单牌，从两头向中间排查
+
+　　　　c、去除间隔1个空位的不连续单牌，从两头向中间排查
+
+　　　　d、去除连续牌数为4、7、10、13中的一张牌，让牌型成为无将胡牌型。如2344条，去除4条。
+
+　　　　e、去除连续牌数为3、6、9、12中的一张牌，有将则打一吃二成为无将听牌型（如233条，去除3条）；无将则打一成将成为有将胡牌型（如233条，去除2条）。
+
+　　　　f、去除连续牌数位2、5、8、11中的一张牌，让牌型成为有将听牌型。如23445条，去除5条。
+
+　　　　g、从将牌中打出一张牌。
 ]]
+
+function PlayCardManager:_aiPlayCard()
+	--如果胡牌了 就不到这里了
+	--去掉连续牌
+	local dark_list = clone(self._cardWall:getDrakCards()) --克隆手牌
+	self:_splitCardsByType(dark_list)
+	--a步奏 若有散牌 打出散牌
+	local card = self:_checkSanPai()
+	if card then
+		return card:getId()
+	end
+	--b 步奏
+	
+	return 0
+end
+
+--不同类型分开存,除缺之外的类
+function PlayCardManager:_splitCardsByType(dark_list)
+	self._cardAll = {}
+	local que_type = self._cardWall:getQueType()
+	for _,card in pairs(dark_list) do
+		local card_type = card:getType()
+		if card_type ~= que_type then
+			if not self._cardAll[card_type] then
+				self._cardAll[card_type] = {}
+			end
+			table.insert(self._cardAll[card_type], #self._cardAll[card_type]+1, card)
+		end
+	end
+end
+
+function PlayCardManager:_checkSanPai()
+	local sortFunc = function(a, b) return a:getId() < b:getId() end
+	for _,cards in pairs(self._cardAll) do
+		table.sort(cards, sortFunc)
+		for id,card in pairs(cards) do
+			--如果某一张牌跟前后牌 相差2
+			if id == 1 then
+				--只检查后
+				if math.abs(card:getId() - cards[id+1]:getId()) >= 3 then
+					return card
+				end
+			elseif id == #cards then
+				if math.abs(card:getId() - cards[id-1]:getId()) >= 3 then
+					return card
+				end
+			else
+				if math.abs(card:getId() - cards[id+1]:getId()) >= 3 and
+					 math.abs(card:getId() - cards[id-1]:getId()) >= 3 then
+					return card
+				end
+			end
+		end
+	end
+end
+
+--去掉顺子
+function PlayCardManager:_removeShunzi()
+
+end
+
+--=======================================================================================
 
 local function dumps(list)
 	-- local lockedS = "锁定:"
