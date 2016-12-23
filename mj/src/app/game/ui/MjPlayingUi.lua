@@ -165,6 +165,7 @@ end
 
 --游戏结算
 function MjPlayingUi:_enterGameOver()
+	self._globalTimerUi:cstop()
 	MjDataControl:getInstance():removeAllCards()
 	self._beganButton:show()
 	for _,seat in pairs(self._seats) do

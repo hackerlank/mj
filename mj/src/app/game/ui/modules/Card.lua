@@ -15,6 +15,9 @@ function Card:ctor()
 	self._seat = 1    --属于哪个玩家
 	self._isMine = false  --
 	self._isQue = false  --是不是缺牌
+	self._isCount = false  --纳入统计(只要出现了， 纳入统计)
+	self._isLocked = false
+	self._level = 1
 
 	--self:setCardType(mjDCardType.mj_init)  --一开始所有的牌都是默认牌
 	self:addNodeEventListener(cc.NODE_TOUCH_EVENT, handler(self, self._darkCardTouchListener))
@@ -76,6 +79,7 @@ end
 
 --出牌形式
 function Card:_changeToPlay()
+	self:setIsCountTrue(true) 
 	self:setTouchEnabled(false)
 	local card = string.format(mjPlayCardKey[self._seat] .. "%d.png", self._id)
 	self:setSpriteFrame(card)
@@ -83,11 +87,13 @@ end
 
 --暗杠暗牌牌情况(手牌区域)
 function Card:_changeToTDark()
+	self:setIsCountTrue(true) 
 	self:setSpriteFrame(mjTDarkCardKey[self._seat])
 end
 
 --碰、杠、胡明牌情况(手牌区域)
 function Card:_changeToShow()
+	self:setIsCountTrue(true) 
 	local card = string.format(mjShowCardKey[self._seat] .. "%d.png", self._id)
 	self:setSpriteFrame(card)
 	self:showQueSprite()
@@ -136,6 +142,13 @@ end
 
 function Card:setSortValue(value)
 	self._sortValue = value
+end
+
+function Card:setIsCountTrue(ret)
+	if not self._isCount then
+		self._isCount = true
+		GDataManager:getInstance():addCardCount(self:getId())
+	end
 end
 
 --======================================

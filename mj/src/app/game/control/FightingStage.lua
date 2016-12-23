@@ -78,7 +78,9 @@ function FightingStage:_playCardSuccess(card)
 				GDataManager:getInstance():setMineHasAction(true)
 			end
 		end
-		this:startGlobalTimer(0, 10)
+		this:startGlobalTimer(0, GDataManager:getInstance():getActionSeconds(), function() 
+			UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
+		end)  --没有执行直接过牌
 	else
 		--都未检测到具有操作，过牌
 		--注意：如果对应的操作，没有被执行，也视为过牌

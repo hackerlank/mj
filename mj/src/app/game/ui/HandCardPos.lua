@@ -239,10 +239,17 @@ function HandCardPos:huCardsPositions(card)
 	if card:getSeat() ~= seat then
 		this:getHandCardsBySeat(card:getSeat()):getHandCardPos():subPlayCardNum()  --这个调用很搞笑
 	end
+
+	card:setSeat(seat)
+	card:setCardType(mjDCardType.mj_play)
 	if seat == 1 then
-		card:setSeat(1)
-		card:setCardType(mjDCardType.mj_play)
 		card:pos(began_pos.x + 33 * num, began_pos.y)
+	elseif seat == 2 then
+		card:pos(began_pos.x, began_pos.y + 33 * num)
+	elseif seat == 3 then
+		card:pos(began_pos.x - 33 * num, began_pos.y)
+	elseif seat == 4 then
+		card:pos(began_pos.x, began_pos.y - 33 * num)
 	end
 end
 

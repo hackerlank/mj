@@ -83,11 +83,6 @@ function DealingStage:_enterDingque()
 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kEnterDingque)
 	self._IsEnterDingque = true
 	this:getHandCardsBySeat(self._bankerSeat):mineFeelCard(1)
-	-- local function end_listener()
-	-- 	self._manager:autoPlayCard(card)
-	-- 	this:getu
-	-- end
-	-- this:startGlobalTimer(self._bankerSeat, 15, end_listener)
 end
 
 return DealingStage

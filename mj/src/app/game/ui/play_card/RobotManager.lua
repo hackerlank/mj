@@ -9,6 +9,7 @@ end
 --==================暂缓执行
 function RobotManager:doAction()
 	local listeners = {
+		[self._actionEnum.hu] = handler(self, self._doHu),
 		[self._actionEnum.dgang] = handler(self, self._doDarkGang),
 		[self._actionEnum.mgang] = handler(self, self._doMGang),
 		[self._actionEnum.gang] = handler(self, self._doGang),
@@ -17,12 +18,11 @@ function RobotManager:doAction()
 
 	self:_start(function() 
 		if listeners[self._recordAction] then
-			this:startGlobalTimer(self._seat, 10)
+			this:startGlobalTimer(self._seat, GDataManager:getInstance():getActionSeconds())
 			listeners[self._recordAction]()
 			ww.printFormat("-----ai%d操作了-----", self._seat)
 		end
-	end)
-	
+	end)	
 end
 
 function RobotManager:_doDarkGang()
@@ -48,8 +48,18 @@ function RobotManager:_doPeng()
 	self:playCard()
 end
 
-function RobotManager:checkHu()
-
+function RobotManager:_doHu()
+	this:getHandCardsBySeat(self._seat):setAlreadyHu(true)
+	this:getHandCardsBySeat(self._seat):insertHuCard(self._huCard)
+	this:updateSeatIndex(self._seat)
+	if self._huIndex == 1 then
+		--自摸
+		this:getHandCardsBySeat(self._seat):removeLastDrakCard()
+		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
+	else
+		--胡牌
+		GDataManager:getInstance():mineHasActionReponse()  --不需要出牌，所以减1
+	end
 end
 
 --==========================================================

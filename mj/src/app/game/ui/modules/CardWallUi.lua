@@ -14,28 +14,18 @@ local this = nil
 function CardWallUi:ctor(layer)
 	this = layer
 
-	self._seat = 0
-	self._queType = nil  --定缺类型
-
-	self._darkCards = {}  --牌墙【暗牌】
-	self._showCards = {}  --明牌【碰、杠】
-	self._huCards = {}    --明牌【胡的牌】
-
-	self._jiang = {}
-	self._kezi = {}  --明刻(碰的牌)
-	self._dkezi = {} --暗刻
-	self._gangzi = {}  --暗杠（手中未杠出去的牌）
-
-	self._peng = nil  --可碰列表
-	self._gang = nil  --可杠列表
-
 	self._handCardPos = HandCardPos.new(this, self)
 	self._huCheck = CardCheckHu.new(self)
+
+	self:reset()
 end
 
 function CardWallUi:reset()
 	self._seat = 0
 	self._queType = nil  --定缺类型
+	self._alreadyHu = false  --是否已经胡过了(已经胡过不允许换牌, 手牌将锁定, 不可以碰、关联杠)
+	self._tingHu = false --是否听胡
+	self._tingHuList = {}  --听牌列表(包括已出)
 
 	self._darkCards = {}  --牌墙【暗牌】
 	self._showCards = {}  --明牌【碰、杠】
@@ -156,7 +146,7 @@ function CardWallUi:mineFeelCard()
 	local function end_listener()
 		self._manager:autoPlayCard(card)
 	end
-	this:startGlobalTimer(self._seat, 15, end_listener)
+	this:startGlobalTimer(self._seat, GDataManager:getInstance():getPlaySeconds(), end_listener)
 	--放在暗牌列表最后
 	card:setSortId(#self._darkCards+1)  
 	table.insert(self._darkCards, #self._darkCards+1, card)
@@ -200,6 +190,42 @@ function CardWallUi:playCardSuccess(card)
 	self._handCardPos:setPlayCardPos(card)
 	table.remove(self._darkCards, card:getSortId())
 	self:_darkCardChange(true) --未加入插入动画
+
+	--GDataManager:getInstance():addCardCount(card:getId())
+	--检查打完一张牌是否听胡
+	self:_checkTingHu()
+end
+
+--检查听胡
+function CardWallUi:_checkTingHu()
+	self._tingHu = false
+	self._tingHuList = {}
+	local mjArray = clone(MjDataControl:getInstance():getMjArray())
+	for _,card in pairs(mjArray) do
+		if self._huCheck:checkHu(card) then
+			self._tingHu = true
+			local id = card:getId()
+			if not self._tingHuList[id] then
+				self._tingHuList[id] = 0
+			end
+			self._tingHuList[id] = self._tingHuList[id] + 1
+		end
+	end
+	--除去记牌器中的数据
+	for id,num in pairs(GDataManager:getInstance():getCardCount()) do
+		if self._tingHuList[id] then
+			self._tingHuList[id] = self._tingHuList[id] - num
+		end
+	end
+
+	-- print(">>>>>>>>>听胡>>>>>>>>>", self._seat, self._tingHu)
+	-- if self._tingHu then
+	-- 	print("========================================")
+	-- 	for key,num in pairs(self._tingHuList) do
+	-- 		print("---------->", key, num)
+	-- 	end
+	-- 	print("========================================")
+	-- end
 end
 
 function CardWallUi:insertHuCard(card)
@@ -230,9 +256,8 @@ end
 function CardWallUi:_checkDarkGang()
 	--只检测手中的暗杠
 	local num = #self._gangzi
-	dump(self._gangzi)
 	if num > 0 then
-		if self:_checkQue(self._gangzi) then
+		if self:_checkQue(self._gangzi[1]) then
 			return false
 		end
 		return true
@@ -402,6 +427,14 @@ end
 
 function CardWallUi:getHuCheck()
 	return self._huCheck
+end
+
+function CardWallUi:setAlreadyHu(ret)
+	self._alreadyHu = ret
+end
+
+function CardWallUi:getQueType()
+	return self._queType
 end
 
 return CardWallUi
