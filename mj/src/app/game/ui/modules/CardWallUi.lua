@@ -30,6 +30,7 @@ function CardWallUi:reset()
 	self._darkCards = {}  --牌墙【暗牌】
 	self._showCards = {}  --明牌【碰、杠】
 	self._huCards = {}    --明牌【胡的牌】
+	self._cardGroupType = {}
 
 	self._jiang = {}
 	self._kezi = {}  --明刻(碰的牌)
@@ -61,11 +62,11 @@ end
 
 --手牌有变化
 function CardWallUi:_darkCardChange(is_sort, is_last)
-	--分割暗牌(找出 将、暗刻、暗杠)
-	self:_setPramsByKey() 
 	--对手牌进行排序
 	self._handCardPos:sortDarkCards(is_sort, is_last)
 	self._handCardPos:setShowCardPos()
+	--分割暗牌(找出 将、暗刻、暗杠)
+	self:_setPramsByKey() 
 end
 
 function CardWallUi:_setPramsByKey()
@@ -80,6 +81,12 @@ function CardWallUi:_setPramsByKey()
 			tmp[id] = {}
 		end
 		table.insert(tmp[id], #tmp[id] + 1, card)
+
+		--根据花色分组
+		if not self._cardGroupType[card:getType()] then
+			self._cardGroupType[card:getType()] = {}
+		end
+		table.insert(self._cardGroupType[card:getType()], #self._cardGroupType[card:getType()]+1, card)
 	end
 	for _,val in pairs(tmp) do
 		if #val == 2 then
@@ -108,13 +115,30 @@ function CardWallUi:_removeCards(cards)
 	end
 end
 
+function CardWallUi:_removeGtbBytb(gtb, tb)
+	for _,_val in pairs(tb) do
+		for id,__val in pairs(gtb) do
+			if _val:getId() == __val:getId() then
+				table.remove(gtb, id)
+				break
+			end
+		end
+	end
+end
+
 function CardWallUi:removeLastDrakCard()
 	table.remove(self._darkCards, #self._darkCards)
 end
 
 --定完缺 设置一遍
 function CardWallUi:updateCardWallQueInfo(que_type)
-	self._queType = que_type
+	local min = 100
+	for _,cards in pairs(self._cardGroupType) do
+		if #cards < min then
+			min = #cards
+			self._queType = cards[1]:getType()
+		end
+	end
 	for _,card in pairs(self._darkCards) do
 		if card:getType() == self._queType then
 			card:setIsQue(true)
@@ -353,12 +377,14 @@ end
 
 function CardWallUi:doMGang()
 	if self._gang and #self._gang == 4 then
+		dump(self._gang)
 		for id,cards in pairs(self._showCards) do
 			if cards[1]:getId() == self._gang[1]:getId() then
 				self._showCards[id].type = mjNoDCardType.gang
 				table.insert(self._showCards[id].value, #self._showCards[id].value+1, self._gang[4])
 				self._gang = nil
 
+				--self:_removeGtbBytb(self._kezi, )  --刻子删不删其实也不糊影响下一次判断
 				GSound:getInstance():playEffect(mjSpecialEffect.woman.gang)
 				local function listener()
 					self:_darkCardChange(true)

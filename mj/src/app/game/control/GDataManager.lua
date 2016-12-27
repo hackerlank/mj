@@ -19,9 +19,9 @@ end
 local this = nil
 
 function GDataManager:ctor()	
-	self._seats = {1, 2, 3, 4}  --初始化好 继续游戏不会变动
-	self._playSeconds = 12
-	self._actionSeconds = 12
+	self._seats = {1, 3}  --初始化好 继续游戏不会变动
+	self._playSeconds = 2
+	self._actionSeconds = 2
 end
 
 function GDataManager:reset()

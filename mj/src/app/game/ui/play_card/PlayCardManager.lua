@@ -62,6 +62,7 @@ function PlayCardManager:autoPlayCard(card)
 	--3. 没有缺牌,抓什么打社
 	--local play_id = self:baseAIPlayCard()
 	--新的计算
+
 	local play_id = self:_aiPlayCard()
 	if play_id == 0 then
 		--没有计算好，填补bug
@@ -132,15 +133,11 @@ end
 	a、检查听牌
 
 　　　　b、去除间隔2个空位的不连续单牌，从两头向中间排查
-
 　　　　c、去除间隔1个空位的不连续单牌，从两头向中间排查
-
 　　　　d、去除连续牌数为4、7、10、13中的一张牌，让牌型成为无将胡牌型。如2344条，去除4条。
-
-　　　　e、去除连续牌数为3、6、9、12中的一张牌，有将则打一吃二成为无将听牌型（如233条，去除3条）；无将则打一成将成为有将胡牌型（如233条，去除2条）。
-
+　　　　e、去除连续牌数为3、6、9、12中的一张牌，有将则打一吃二成为无将听牌型（如233条，去除3条）；
+		   无将则打一成将成为有将胡牌型(如233条，去除2条)。
 　　　　f、去除连续牌数位2、5、8、11中的一张牌，让牌型成为有将听牌型。如23445条，去除5条。
-
 　　　　g、从将牌中打出一张牌。
 ]]
 
@@ -149,13 +146,19 @@ function PlayCardManager:_aiPlayCard()
 	--去掉连续牌
 	local dark_list = clone(self._cardWall:getDrakCards()) --克隆手牌
 	self:_splitCardsByType(dark_list)
-	--a步奏 若有散牌 打出散牌
-	local card = self:_checkSanPai()
+	self:_cardsClassifyContinue()
+	--先出掉散牌
+	if #self._sanpai[3] > 0 then
+		return self._sanpai[3][1]:getId()
+	elseif #self._sanpai[2] > 0 then
+		return self._sanpai[2][1]:getId()
+	end
+	--去除连续牌
+	local card = self:_removeContinueCard()
 	if card then
 		return card:getId()
 	end
-	--b 步奏
-	
+
 	return 0
 end
 
@@ -174,226 +177,183 @@ function PlayCardManager:_splitCardsByType(dark_list)
 	end
 end
 
-function PlayCardManager:_checkSanPai()
+--分好阵营
+function PlayCardManager:_cardsClassifyContinue()
+	--[[
+		拿出连续牌和非连续牌
+	]]
+	self._continue = {}
+	self._sanpai = {
+		[2] = {},  --间隔2
+		[3] = {}   --间隔3 和 以上
+	}
+	local index = 1
+
+	local function insertContinue(card)
+		if not self._continue[index] then
+			self._continue[index] = {}
+		end
+		table.insert(self._continue[index], #self._continue[index]+1, card)
+	end
+
+	local function insertSanpai(card, dis)
+		if dis >= 2 then
+			if dis > 3 then dis = 3 end
+			table.insert(self._sanpai[dis], #self._sanpai[dis] + 1, card)
+		end
+	end
+
+	local function insertDis(card, dis)
+		if dis >= 2 then
+			insertSanpai(card, dis)
+		else
+			insertContinue(card)
+		end
+	end
+
+
+	local function checkContinue(cards)
+		index = index + 1
+		if #cards == 1 then
+			table.insert(self._sanpai[3], #self._sanpai[3]+1, cards[1])
+		else
+			for id,card in pairs(cards) do
+				--从第二张开始
+				if id == 1 then
+					local dis = math.abs(card:getId()-cards[id+1]:getId())
+					insertDis(card, dis)
+				elseif id == #cards then
+					local dis = math.abs(card:getId()-cards[id-1]:getId())
+					insertDis(card, dis)
+				else
+					--左隔2 又隔3
+					local dis1 = math.abs(card:getId() - cards[id+1]:getId())  --右边
+					local dis2 = math.abs(card:getId() - cards[id-1]:getId())  --左边
+					local dis = dis1 > dis2 and dis2 or dis1  --选择关系度小的那个
+					if dis2 >= 2 then
+						--具有隔开了一次
+						index = index + 1
+					end
+					insertDis(card, dis)
+				end
+			end
+		end
+	end
+
 	local sortFunc = function(a, b) return a:getId() < b:getId() end
 	for _,cards in pairs(self._cardAll) do
 		table.sort(cards, sortFunc)
-		for id,card in pairs(cards) do
-			--如果某一张牌跟前后牌 相差2
-			if id == 1 then
-				--只检查后
-				if math.abs(card:getId() - cards[id+1]:getId()) >= 3 then
-					return card
-				end
-			elseif id == #cards then
-				if math.abs(card:getId() - cards[id-1]:getId()) >= 3 then
-					return card
-				end
-			else
-				if math.abs(card:getId() - cards[id+1]:getId()) >= 3 and
-					 math.abs(card:getId() - cards[id-1]:getId()) >= 3 then
-					return card
-				end
-			end
-		end
+		checkContinue(cards)
 	end
 end
 
---去掉顺子
-function PlayCardManager:_removeShunzi()
-
-end
-
---=======================================================================================
-
-local function dumps(list)
-	-- local lockedS = "锁定:"
-	-- local nLockeds = "未锁定:"
-	-- for _,card in pairs(list) do
-	-- 	if not card._isLocked then
-	-- 		nLockeds = nLockeds .. card:getName() .. ","
-	-- 	else
-	-- 		lockedS = lockedS .. card:getName() .. ","
-	-- 	end
-	-- end
-	-- print(lockedS)
-	-- print(nLockeds)
-end
-
-function PlayCardManager:dumpThree(list)
-	local cardsr = ""
-	if self._cardWall:getSeat() == 1 and #list == 3 then
-		print(">>>>>>>>>>>>>>>>>来年了")
-		for _,card in pairs(list) do
-			cardsr = cardsr .. string.format("等%d张", card) .. ","
+local function checkShunzi(cards)
+	if #cards == 3 then
+		if cards[1]:getId() == cards[2]:getId()-1 and 
+			cards[2]:getId() == cards[3]:getId()-1 then
+			return true
 		end
-	end
-	print(cardsr)
-end
-
-function PlayCardManager:baseAIPlayCard()
-	--克隆一副手牌操作
-	--这时候的手牌是需要出牌时候的手牌，也就是上牌之后
-	local card_list = clone(self._cardWall:getDrakCards()) 
-	self:_splitDarkCards(card_list) 
-	self._lockedList = {{}, {}, {}}  --锁定列表
-	
-	--锁定顺子
-	self:_lockedShun()
-	self:_locakedKezi()
-	self:_setLevelDoule()
-	self:_setLevelClose()
-
-	for _,list in pairs(self._cardAll) do
-		if self._cardWall:getSeat() == 1 then
-			dumps(list)
+		if cards[1]:getId() == cards[2]:getId() and
+			cards[2]:getId() == cards[3]:getId() then
+			return true
 		end
-	end
-
-	local pcard = nil
-	local min_level = 100
-	for index,cards in pairs(self._cardAll) do
-		for id,card in pairs(cards) do
-			if self:_checkNotAtLockedList(index, id) and card._level < min_level then
-				min_level = card._level
-				pcard = card
-			end
-		end
-	end
-	if not pcard then return 0 end
-	return pcard:getId()
-end
-
-function PlayCardManager:_checkNotAtLockedList(index, id)
-	for _,val in pairs(self._lockedList[index]) do
-		if val == id then
-			return false
-		end
+	else
+		return false
 	end
 	return true
 end
 
-function PlayCardManager:_splitDarkCards(dark_list)
-	self._cardAll = {}
-	local que_type = self._cardWall:getQueType()
-	for _,card in pairs(dark_list) do
-		local card_type = card:getType()
-		if card_type ~= que_type then
-			if not self._cardAll[card_type] then
-				self._cardAll[card_type] = {}
+function PlayCardManager:_removeContinueCard()
+	for _,cards in pairs(self._continue) do
+		--优先处理
+		if #cards == 4 or #cards == 7 or #cards == 10 or #cards == 13 then
+			--1> 4 7 10 13 : 锁定三张，多余牌出掉
+			return self:_lockedShunzi(cards)
+		end
+	end
+	for _,cards in pairs(self._continue) do
+		if #cards == 3 or #cards == 6 or #cards == 9 or #cards == 12 then
+			--2> 3 6 9 12 : 分两个情况 是否有将
+			print(">>>>>>>36912")
+			if not checkShunzi(cards) then
+				return self:_locked36912(cards)
 			end
-			table.insert(self._cardAll[card_type], #self._cardAll[card_type]+1, card)
+		end
+	end
+	for _,cards in pairs(self._continue) do
+		if #cards == 2 or #cards == 5 or #cards == 8 or #cards == 11 then
+			--3> 2 5 8 11 : 保证有将牌
+			print(">>>>>>>25811")
+			return self:_locked25811(cards)
 		end
 	end
 end
 
---顺子
-function PlayCardManager:_lockedShun()
-	local function checkThree(index, cards)
-		for idex, card in pairs(cards) do
-			local threeCards = {idex}
-			local curId = card:getId()
-			for _idex = idex+1, #cards do
-				if cards[_idex]:getId() == curId+1 and self:_checkNotAtLockedList(index, _idex) then
-					--table.insert(threeCards, #threeCards+1, cards[_idex])
-					threeCards[2] = _idex
+function PlayCardManager:_lockedShunzi(cards)
+	local function removeShunzi()
+		for id = 1, #cards - 2 do
+		local curr = cards[id]
+		local next1 = cards[id+1]
+		local next2 = cards[id+2]
+			if curr:getId()+1 == next1:getId() and next1:getId()+1 == next2:getId() then
+				table.remove(cards, id)
+				table.remove(cards, id)
+				table.remove(cards, id)
+				print(">>>>>>>>>#>>>", #cards)
+				if #cards == 1 then
+					return
 				end
-			end
-
-			for _idex = idex+1, #cards do
-				if cards[_idex]:getId() == curId+2 and self:_checkNotAtLockedList(index, _idex) then
-					--table.insert(threeCards, #threeCards+1, cards[_idex])
-					threeCards[3] = _idex
-				end
-			end
-			self:dumpThree(threeCards)
-			if #threeCards == 3 then 
-				for _,id in pairs(threeCards) do
-					self._lockedList[index][id] = id
-					--card._isLocked = true
-				end
+				removeShunzi()
+				return
 			end
 		end
 	end
-
-	for index, cards in pairs(self._cardAll) do
-		--条、筒、万
-		checkThree(index, cards)
-	end
+	removeShunzi()
+	return cards[1]
 end
---刻子
-function PlayCardManager:_locakedKezi()
-	for index,cards in pairs(self._cardAll) do
-		for idex,card in pairs(cards) do
-			if self:_checkNotAtLockedList(index, idex) then
-				local curId = card:getId()
-				threeCards = {idex}
-				for _idex = idex+1, #cards do
-					if cards[_idex]:getId() == curId and self:_checkNotAtLockedList(index, _idex) then
-						table.insert(threeCards,#threeCards+1, _idex)
-					end
-				end
 
-				if #threeCards >= 3 then
-					for id,val in pairs(threeCards) do
-						if id <= 3 then
-							--card._isLocked = true
-							self._lockedList[index][val] = val
-						end
-					end
-				end
-			end
+function PlayCardManager:_locked36912()
+
+end
+
+function PlayCardManager:_locked25811(cards)
+	--锁定一对将牌， 打出这手牌中的散牌
+	for id = 1, #cards -1 do
+		local curr = cards[id]
+		local next1 = cards[id+1]
+		if curr:getId() == next1:getId() then
+			table.remove(cards, id)
+			table.remove(cards, id)
+			break
 		end
 	end
-end
-
---对子等级
-function PlayCardManager:_setLevelDoule()
-	for index,cards in pairs(self._cardAll) do
-		for idex,card in pairs(cards) do
-			if self:_checkNotAtLockedList(index, idex) then
-				local twoCards = {card}
-				local curId = card:getId()
-				for _idex = idex+1, #cards do
-					if cards[_idex]:getId() == card:getId() and self:_checkNotAtLockedList(index, _idex) then
-						table.insert(twoCards, #twoCards+1, cards[_idex])
-					end
-				end
-				if #twoCards == 2 then
-					card._level = card._level + 1
-				end
+	--找出散牌
+	local function checkSanPai(card, dis)
+		if dis >= 2 then
+			return card
+		end
+	end
+	if #cards == 1 then
+		return cards[1]
+	else
+		for id = 1, #cards - 1 do
+			--从第二张开始
+			local card = cards[id]
+			if id == 1 then
+				local dis = math.abs(card:getId()-cards[id+1]:getId())
+				return checkSanPai(card, dis)
+			elseif id == #cards then
+				local dis = math.abs(card:getId()-cards[id-1]:getId())
+				return checkSanPai(card, dis)
+			else
+				--左隔2 又隔3
+				local dis1 = math.abs(card:getId() - cards[id+1]:getId())  --右边
+				local dis2 = math.abs(card:getId() - cards[id-1]:getId())  --左边
+				local dis = dis1 > dis2 and dis2 or dis1
+				return checkSanPai(card, dis)
 			end
 		end
 	end
 end
---相近牌等级(相邻+2， 相近+1)
-function PlayCardManager:_setLevelClose()
-	for index,cards in pairs(self._cardAll) do
-		for idex,card in pairs(cards) do
-			if self:_checkNotAtLockedList(index, idex) then
-				local curId = card:getId()
-				for _idex = idex+1, #cards do
-					if self:_checkNotAtLockedList(index, _idex) then
-						--检查到一个相邻 +2
-						local nexId = cards[_idex]:getId()
-						if math.abs(nexId-curId) == 1 then
-							card._level = card._level + 2
-							cards[_idex]._level = cards[_idex]._level + 2
-						end
-						--检测到一个相近 +1
-						if math.abs(nexId-curId) == 2 then
-							card._level = card._level + 1
-							cards[_idex]._level = cards[_idex]._level + 1
-						end
-					end
-				end
-			end
-		end
-	end
-end
--- --散牌
--- function PlayCardManager:_setLevelBulk()
-
--- end
 
 return PlayCardManager

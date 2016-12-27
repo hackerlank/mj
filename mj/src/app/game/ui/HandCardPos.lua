@@ -62,9 +62,9 @@ function HandCardPos:sortDarkCards(is_sort, is_last)
 		if seat ~= 1 then
 			card:setCardType(mjDCardType.mj_dark)
 		end
-		-- if seat ~= 1 then
-		-- 	card:setCardType(mjDCardType.mj_play)
-		-- end
+		if seat ~= 1 then
+			card:setCardType(mjDCardType.mj_play)
+		end
 		card:setSortId(id)
 		local function getDis(seat)
 			if id == #cards and is_last then 

@@ -63,12 +63,19 @@ function DingQueStage:_setupUi()
 end
 
 function DingQueStage:robotDingQue()
-	this:getHandCardsBySeat(2):updateCardWallQueInfo(mjCardType.mj_wan)
-	this:getHandCardsBySeat(3):updateCardWallQueInfo(mjCardType.mj_wan)
-	this:getHandCardsBySeat(4):updateCardWallQueInfo(mjCardType.mj_wan)
-	this:getPlayerSeatUi(2):setMarkQue(1)
-	this:getPlayerSeatUi(3):setMarkQue(1)
-	this:getPlayerSeatUi(4):setMarkQue(1)
+	for _,seat in pairs(GDataManager:getInstance():getSeats()) do
+		if seat ~= 1 then
+			
+			this:getHandCardsBySeat(seat):updateCardWallQueInfo(mjCardType.mj_wan)
+			this:getPlayerSeatUi(seat):setMarkQue(1)
+		end
+	end
+	-- this:getHandCardsBySeat(2):updateCardWallQueInfo(mjCardType.mj_wan)
+	-- this:getHandCardsBySeat(3):updateCardWallQueInfo(mjCardType.mj_wan)
+	-- this:getHandCardsBySeat(4):updateCardWallQueInfo(mjCardType.mj_wan)
+	-- this:getPlayerSeatUi(2):setMarkQue(1)
+	-- this:getPlayerSeatUi(3):setMarkQue(1)
+	-- this:getPlayerSeatUi(4):setMarkQue(1)
 end
 
 function DingQueStage:_buttonCommonClick(que_type)

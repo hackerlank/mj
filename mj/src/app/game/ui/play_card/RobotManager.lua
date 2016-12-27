@@ -55,11 +55,11 @@ function RobotManager:_doHu()
 	if self._huIndex == 1 then
 		--自摸
 		this:getHandCardsBySeat(self._seat):removeLastDrakCard()
-		UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 	else
 		--胡牌
-		GDataManager:getInstance():mineHasActionReponse()  --不需要出牌，所以减1
+		--GDataManager:getInstance():mineHasActionReponse()  --不需要出牌，所以减1
 	end
+	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 end
 
 --==========================================================

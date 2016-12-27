@@ -18,7 +18,7 @@ function FightingStage:getActiveSeatUp()
 	this:hideOperatorUi()
 	local seat = self:_getActivitySeat()
 	GDataManager:getInstance():setCurrentSeat(seat)
-	ww.print("----------------------当前活动玩家", seat)
+	print("----------------------当前活动玩家", seat)
 	--第一轮不需要上牌
 	if self._NotfirstPlay then
 		this:getHandCardsBySeat(seat):mineFeelCard(1)
@@ -71,6 +71,7 @@ function FightingStage:_playCardSuccess(card)
 	if actionSeats then
 		--AI会有自己的响应机制 如果超时，则肯定是玩家未操作，按过处理
 		for _seat,val in pairs(actionSeats) do
+			GDataManager:getInstance():setMineHasAction(true)
 			if _seat ~= 1 then
 				this:getHandCardsBySeat(_seat):getManager():doAction()  --AI直接尝试直接操作
 				GDataManager:getInstance():responseAction()
