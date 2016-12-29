@@ -168,6 +168,10 @@ function MjDataControl:getGameOver()
 	return self.m_game_over
 end
 
+function MjDataControl:setGameOver(ret)
+	self.m_game_over = ret
+end
+
 --当前拿到第几张牌
 function MjDataControl:getCurrentNum()
 	return self.m_current_num

@@ -132,13 +132,18 @@ end
 
 --定完缺 设置一遍
 function CardWallUi:updateCardWallQueInfo(que_type)
-	local min = 100
-	for _,cards in pairs(self._cardGroupType) do
-		if #cards < min then
-			min = #cards
-			self._queType = cards[1]:getType()
+	if not que_type then
+		local min = 100
+		for _,cards in pairs(self._cardGroupType) do
+			if #cards < min then
+				min = #cards
+				self._queType = cards[1]:getType()
+			end
 		end
+	else
+		self._queType = que_type
 	end
+	this:getPlayerSeatUi(self._seat):setMarkQue(self._queType)
 	for _,card in pairs(self._darkCards) do
 		if card:getType() == self._queType then
 			card:setIsQue(true)
@@ -154,9 +159,15 @@ end
 function CardWallUi:mineFeelCard()
 	--按顺序获取一张牌
 	if MjDataControl:getInstance():getGameOver() then
+		--如果最后一张是胡牌或自杠
 		return 
 	end
+
 	local card= MjDataControl:getInstance():getCardMjArray(1)[1]  
+	if not card then
+		MjDataControl:getInstance():setGameOver(true)
+		return 
+	end
 	--设置成改位置玩家手牌
 	card:setSeat(self._seat)
 	card:setIsMine(self._seat == 1)
@@ -181,6 +192,9 @@ function CardWallUi:mineFeelCard()
 	self._manager:checkDarkGang(self:_checkDarkGang())
 	self._manager:checkMGang(self:_checkMGang(card))
 	self._manager:checkHu(self._huCheck:checkHu(), 1, card) --检测暗杠
+	if self._seat ~= 1 then
+		self._manager:doAction()
+	end
 
 	self._manager:playCard(card)
 end
@@ -377,9 +391,8 @@ end
 
 function CardWallUi:doMGang()
 	if self._gang and #self._gang == 4 then
-		dump(self._gang)
 		for id,cards in pairs(self._showCards) do
-			if cards[1]:getId() == self._gang[1]:getId() then
+			if cards.value[1]:getId() == self._gang[1]:getId() then
 				self._showCards[id].type = mjNoDCardType.gang
 				table.insert(self._showCards[id].value, #self._showCards[id].value+1, self._gang[4])
 				self._gang = nil

@@ -15,12 +15,11 @@ function RobotManager:doAction()
 		[self._actionEnum.gang] = handler(self, self._doGang),
 		[self._actionEnum.peng] = handler(self, self._doPeng)
 	}
-
 	self:_start(function() 
 		if listeners[self._recordAction] then
 			this:startGlobalTimer(self._seat, GDataManager:getInstance():getActionSeconds())
 			listeners[self._recordAction]()
-			ww.printFormat("-----ai%d操作了-----", self._seat)
+			self._recordAction = 0
 		end
 	end)	
 end
@@ -52,12 +51,13 @@ function RobotManager:_doHu()
 	this:getHandCardsBySeat(self._seat):setAlreadyHu(true)
 	this:getHandCardsBySeat(self._seat):insertHuCard(self._huCard)
 	this:updateSeatIndex(self._seat)
+	print(">>>>>电脑胡>>>>>>>>>>")
 	if self._huIndex == 1 then
 		--自摸
 		this:getHandCardsBySeat(self._seat):removeLastDrakCard()
 	else
 		--胡牌
-		--GDataManager:getInstance():mineHasActionReponse()  --不需要出牌，所以减1
+		GDataManager:getInstance():responseAction()
 	end
 	UIChangeObserver:getInstance():dispatcherUIChangeObserver(ListenerIds.kNextSeat)
 end

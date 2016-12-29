@@ -57,7 +57,6 @@ function FightingStage:_playCardSuccess(card)
 	--2. 其他三位玩家根据优先级检测 胡(并列)>杠>碰 (所有响应)
 	--3. 检测到则等待 。。。
 	--4. 未检测到 过
-	--GDataManager:getInstance():mineHasActionReponse()
 	for _,seat in pairs(GDataManager:getInstance():getSeats()) do
 		if seat == card:getSeat() then
 			card:setCardType(mjDCardType.mj_play)
@@ -74,9 +73,6 @@ function FightingStage:_playCardSuccess(card)
 			GDataManager:getInstance():setMineHasAction(true)
 			if _seat ~= 1 then
 				this:getHandCardsBySeat(_seat):getManager():doAction()  --AI直接尝试直接操作
-				GDataManager:getInstance():responseAction()
-			else
-				GDataManager:getInstance():setMineHasAction(true)
 			end
 		end
 		this:startGlobalTimer(0, GDataManager:getInstance():getActionSeconds(), function() 

@@ -274,7 +274,6 @@ function PlayCardManager:_removeContinueCard()
 	for _,cards in pairs(self._continue) do
 		if #cards == 3 or #cards == 6 or #cards == 9 or #cards == 12 then
 			--2> 3 6 9 12 : 分两个情况 是否有将
-			print(">>>>>>>36912")
 			if not checkShunzi(cards) then
 				return self:_locked36912(cards)
 			end
@@ -283,7 +282,6 @@ function PlayCardManager:_removeContinueCard()
 	for _,cards in pairs(self._continue) do
 		if #cards == 2 or #cards == 5 or #cards == 8 or #cards == 11 then
 			--3> 2 5 8 11 : 保证有将牌
-			print(">>>>>>>25811")
 			return self:_locked25811(cards)
 		end
 	end
@@ -313,7 +311,7 @@ function PlayCardManager:_lockedShunzi(cards)
 end
 
 function PlayCardManager:_locked36912()
-
+	print(">>>>>>>36912")
 end
 
 function PlayCardManager:_locked25811(cards)

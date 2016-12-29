@@ -19,9 +19,9 @@ end
 local this = nil
 
 function GDataManager:ctor()	
-	self._seats = {1, 3}  --初始化好 继续游戏不会变动
-	self._playSeconds = 2
-	self._actionSeconds = 2
+	self._seats = {1, 2, 3, 4}  --初始化好 继续游戏不会变动
+	self._playSeconds = 10
+	self._actionSeconds = 10
 end
 
 function GDataManager:reset()
@@ -62,29 +62,30 @@ function GDataManager:checkEffectiveAction()
 			isPeng = true
 		end
 	end
+	local actions = {}
 	if isHu then
 		--有胡  其他的全部失效
 		for seat,val in pairs(self._actions) do
-			if val ~= mjFighintInfoType.hu then
-				val = nil
+			if val == mjFighintInfoType.hu then
+				actions[seat] = val
 			end
 		end
-		self._actionNum = #self._actions
-		return self._actions
+		self._actionNum = #actions
+		return actions
 	end
 	if isGang then
 		--没有胡 有杠 碰失效
 		for seat,val in pairs(self._actions) do
-			if val ~= mjFighintInfoType.gang then
-				val = nil
+			if val == mjFighintInfoType.gang then
+				actions[seat] = val
+				self._actionNum = 1
+				return actions
 			end
 		end
-		self._actionNum = #self._actions
-		return self._actions
 	end
 
 	if isPeng then
-		self._actionNum = #self._actions
+		self._actionNum = 1
 		return self._actions
 	end
 
